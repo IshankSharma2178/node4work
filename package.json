@@ -8,8 +8,9 @@
     "start": "next start",
     "lint": "biome check",
     "format": "biome format --write",
-    "inngest:dev": "inngest-cli dev",
-    "dev:all": "mprocs"
+    "inngest:dev": "npx inngest-cli dev",
+    "dev:all": "mprocs",
+    "preinstall": "npx npm-force-resolutions"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.44",
@@ -82,6 +83,7 @@
     "@types/react-dom": "^19",
     "inngest-cli": "^1.14.0",
     "mprocs": "^0.7.3",
+    "npm-force-resolutions": "^0.0.10",
     "prisma": "^6.19.0",
     "tailwindcss": "^4",
     "tsx": "^4.20.6",
