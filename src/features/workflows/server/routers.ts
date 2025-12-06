@@ -17,7 +17,7 @@ export const workflowsRouter = createTRPCRouter({
       },
     });
   }),
-  remove: premiumProcedure
+  remove: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(({ ctx, input }) => {
       return prisma.workflow.delete({
