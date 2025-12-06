@@ -1,15 +1,15 @@
-import prisma from "@/lib/db";
-import { generateSlug } from "random-word-slugs";
 import {
   createTRPCRouter,
   premiumProcedure,
   protectedProcedure,
 } from "@/trpc/init";
+import prisma from "@/lib/db";
+import { generateSlug } from "random-word-slugs";
 import z from "zod";
+import { PAGINATION } from "@/config/constants";
 
 export const workflowsRouter = createTRPCRouter({
-  create: premiumProcedure.mutation(async ({ ctx }) => {
-    // Example mutation logic
+  create: premiumProcedure.mutation(({ ctx }) => {
     return prisma.workflow.create({
       data: {
         name: generateSlug(3),
@@ -17,11 +17,9 @@ export const workflowsRouter = createTRPCRouter({
       },
     });
   }),
-
-  remove: protectedProcedure
+  remove: premiumProcedure
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ ctx, input }) => {
-      // Example mutation logic
+    .mutation(({ ctx, input }) => {
       return prisma.workflow.delete({
         where: {
           id: input.id,
@@ -29,11 +27,9 @@ export const workflowsRouter = createTRPCRouter({
         },
       });
     }),
-
   updateName: protectedProcedure
     .input(z.object({ id: z.string(), name: z.string().min(1) }))
-    .mutation(async ({ ctx, input }) => {
-      // Example mutation logic
+    .mutation(({ ctx, input }) => {
       return prisma.workflow.update({
         where: {
           id: input.id,
@@ -44,11 +40,9 @@ export const workflowsRouter = createTRPCRouter({
         },
       });
     }),
-
   getOne: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .query(async ({ ctx, input }) => {
-      // Example query logic
+    .query(({ ctx, input }) => {
       return prisma.workflow.findUnique({
         where: {
           id: input.id,
@@ -56,13 +50,58 @@ export const workflowsRouter = createTRPCRouter({
         },
       });
     }),
+  getMany: protectedProcedure
+    .input(
+      z.object({
+        page: z.number().default(PAGINATION.DEFAULT_PAGE),
+        pageSize: z
+          .number()
+          .min(PAGINATION.MIN_PAGE_SIZE)
+          .max(PAGINATION.MAX_PAGE_SIZE)
+          .default(PAGINATION.DEFAULT_PAGE_SIZE),
+        search: z.string().default(""),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { page, pageSize, search } = input;
+      const [items, totalCount] = await Promise.all([
+        prisma.workflow.findMany({
+          skip: (page - 1) * pageSize,
+          take: pageSize,
+          where: {
+            userId: ctx.auth.user.id,
+            name: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+          orderBy: {
+            updatedAt: "desc",
+          },
+        }),
+        prisma.workflow.count({
+          where: {
+            userId: ctx.auth.user.id,
+            name: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+        }),
+      ]);
 
-  getMany: protectedProcedure.query(async ({ ctx }) => {
-    // Example query logic
-    return prisma.workflow.findMany({
-      where: {
-        userId: ctx.auth.user.id,
-      },
-    });
-  }),
+      const totalPages = Math.ceil(totalCount / pageSize);
+      const hasNextPage = page < totalPages;
+      const hasPreviousPage = page > 1;
+
+      return {
+        items,
+        page,
+        pageSize,
+        totalCount,
+        totalPages,
+        hasNextPage,
+        hasPreviousPage,
+      };
+    }),
 });
