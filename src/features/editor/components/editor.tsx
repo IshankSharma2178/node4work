@@ -1,37 +1,42 @@
 "use client";
 
-import { useSuspenseWorkflow } from "@/features/workflows/hooks/use-workflows";
-import { ErrorView, LoadingView } from "@/components/entity-components";
 import { useState, useCallback } from "react";
 import {
   ReactFlow,
   applyNodeChanges,
   applyEdgeChanges,
   addEdge,
-  Node,
-  Edge,
-  NodeChange,
-  EdgeChange,
-  Connection,
+  type Node,
+  type Edge,
+  type NodeChange,
+  type EdgeChange,
+  type Connection,
   Background,
   Controls,
   MiniMap,
   Panel,
 } from "@xyflow/react";
+import { ErrorView, LoadingView } from "@/components/entity-components";
+import { useSuspenseWorkflow } from "@/features/workflows/hooks/use-workflows";
+
 import "@xyflow/react/dist/style.css";
 import { nodeComponents } from "@/config/node-components";
-import { AddNodeButton } from "@/features/editor/components/add-node-button";
+import { AddNodeButton } from "./add-node-button";
+import { useAtom, useSetAtom } from "jotai";
+import { editorAtom } from "../store/atoms";
 
 export const EditorLoading = () => {
-  return <LoadingView message={"Loading editor..."} />;
+  return <LoadingView message="Loading editor..." />;
 };
 
 export const EditorError = () => {
-  return <ErrorView message={"Error loading editor..."} />;
+  return <ErrorView message="Error loading editor" />;
 };
 
 export const Editor = ({ workflowId }: { workflowId: string }) => {
   const { data: workflow } = useSuspenseWorkflow(workflowId);
+
+  const setEditor = useSetAtom(editorAtom);
 
   const [nodes, setNodes] = useState<Node[]>(workflow.nodes);
   const [edges, setEdges] = useState<Edge[]>(workflow.edges);
@@ -53,23 +58,29 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
   );
 
   return (
-    <div className={"size-full"}>
+    <div className="size-full">
       <ReactFlow
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-        nodeTypes={nodeComponents}
-        fitView
         proOptions={{
           hideAttribution: true,
         }}
+        nodeTypes={nodeComponents}
+        onInit={setEditor}
+        fitView
+        snapGrid={[10, 10]}
+        snapToGrid
+        panOnScroll
+        // panOnDrag={false}
+        // selectionOnDrag
       >
         <Background />
         <Controls />
         <MiniMap />
-        <Panel position={"top-right"}>
+        <Panel position="top-right">
           <AddNodeButton />
         </Panel>
       </ReactFlow>
