@@ -1,29 +1,27 @@
-"use client";
-
-import { createId } from "@paralleldrive/cuid2";
+import { NodeType } from "@/generated/prisma/enums";
+import { GlobeIcon, MousePointerIcon } from "lucide-react";
 import {
   Sheet,
+  SheetTrigger,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
+  SheetDescription,
 } from "@/components/ui/sheet";
-import { NodeType } from "@/generated/prisma/enums";
-import React, { useCallback } from "react";
-import { GlobeIcon, Icon, MousePointerIcon } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-import { useReactFlow } from "@xyflow/react";
+import { Separator } from "./ui/separator";
+import { ComponentType, useCallback } from "react";
 import { toast } from "sonner";
+import { useReactFlow } from "@xyflow/react";
+import { createId } from "@paralleldrive/cuid2";
 
 export type NodeTypeOption = {
   type: NodeType;
   label: string;
   description: string;
-  icon: React.ComponentType<{ className?: string }> | string;
+  icon: ComponentType<{ className?: string }> | string;
 };
 
-const triggerNodes: NodeTypeOption[] = [
+export const triggerNodes: NodeTypeOption[] = [
   {
     type: NodeType.MANUAL_TRIGGER,
     label: "Trigger manually",
@@ -33,16 +31,16 @@ const triggerNodes: NodeTypeOption[] = [
   },
 ];
 
-const executionNodes: NodeTypeOption[] = [
+export const executionNodes: NodeTypeOption[] = [
   {
     type: NodeType.HTTP_REQUEST,
-    label: "Http Request",
+    label: "HTTP Request",
     description: "Makes an HTTP request",
     icon: GlobeIcon,
   },
 ];
 
-interface NodeSelectorProps {
+interface NodeSelectionProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   children: React.ReactNode;
@@ -52,13 +50,15 @@ export function NodeSelector({
   open,
   onOpenChange,
   children,
-}: NodeSelectorProps) {
+}: NodeSelectionProps) {
   const { setNodes, getNodes, screenToFlowPosition } = useReactFlow();
 
   const handleNodeSelect = useCallback(
     (selection: NodeTypeOption) => {
+      // Check if trying to add a manual trigger when one already exists
       if (selection.type === NodeType.MANUAL_TRIGGER) {
-        const nodes = getNodes();
+        const nodes = getNodes(); // ✅ correct call
+
         const hasManualTrigger = nodes.some(
           (node) => node.type === NodeType.MANUAL_TRIGGER
         );
@@ -68,13 +68,16 @@ export function NodeSelector({
           return;
         }
       }
+
       setNodes((nodes) => {
+        // Check if an Initial node already exists
         const hasInitialTrigger = nodes.some(
           (node) => node.type === NodeType.INITIAL
         );
 
+        // Calculate random offset position near center of screen
         const centerX = window.innerWidth / 2;
-        const centerY = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
 
         const flowPosition = screenToFlowPosition({
           x: centerX + (Math.random() - 0.5) * 200,
@@ -83,11 +86,12 @@ export function NodeSelector({
 
         const newNode = {
           id: createId(),
-          data: {},
-          position: flowPosition,
           type: selection.type,
+          position: flowPosition,
+          data: {},
         };
 
+        // If this is the first node (only allow one initial trigger)
         if (hasInitialTrigger) {
           return [newNode];
         }
@@ -97,18 +101,15 @@ export function NodeSelector({
 
       onOpenChange(false);
     },
-    [setNodes, getNodes, onOpenChange, screenToFlowPosition]
+    [getNodes, setNodes, onOpenChange, screenToFlowPosition]
   );
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetTrigger asChild>{children}</SheetTrigger>
-      <SheetContent
-        side={"right"}
-        className={"w-full sm:max-w-md overflow-y-auto"}
-      >
+      <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>What trigger this workflow?</SheetTitle>
+          <SheetTitle>What triggers this workflow?</SheetTitle>
           <SheetDescription>
             A trigger is a step that starts your workflow.
           </SheetDescription>
@@ -119,37 +120,24 @@ export function NodeSelector({
             return (
               <div
                 key={nodeType.type}
-                className="
-                                                w-full
-                                                justify-start
-                                                h-auto
-                                                py-5
-                                                px-4
-                                                rounded-none
-                                                cursor-pointer
-                                                border-l-2
-                                                border-transparent
-                                                hover:border-l-primary
-                                                "
+                className="w-full justify-start h-auto py-5 px-4 rounded-none cursor-pointer border border-transparent hover:border-l-primary"
                 onClick={() => handleNodeSelect(nodeType)}
               >
-                <div
-                  className={"flex items-center gap-6 w-full overflow-hidden"}
-                >
+                <div className="flex items-center gap-6 w-full overflow-hidden">
                   {typeof Icon === "string" ? (
                     <img
                       src={Icon}
                       alt={nodeType.label}
-                      className={"size-5 object-contain rounded-sm"}
+                      className="size-5 object-contain rounded"
                     />
                   ) : (
-                    <Icon className={"size-5"} />
+                    <Icon className="size-5" />
                   )}
-                  <div className={"flex flex-col items-start text-left"}>
-                    <span className={"font-medium text-sm"}>
+                  <div className="flex flex-col items-start text-left">
+                    <span className="font-medium text-sm">
                       {nodeType.label}
                     </span>
-                    <span className={"text-xs text-muted-foreground"}>
+                    <span className="text-xs text-muted-foreground">
                       {nodeType.description}
                     </span>
                   </div>
@@ -165,37 +153,24 @@ export function NodeSelector({
             return (
               <div
                 key={nodeType.type}
-                className="
-                                                w-full
-                                                justify-start
-                                                h-auto
-                                                py-5
-                                                px-4
-                                                rounded-none
-                                                cursor-pointer
-                                                border-l-2
-                                                border-transparent
-                                                hover:border-l-primary
-                                                "
+                className="w-full justify-start h-auto py-5 px-4 rounded-none cursor-pointer border border-transparent hover:border-l-primary"
                 onClick={() => handleNodeSelect(nodeType)}
               >
-                <div
-                  className={"flex items-center gap-6 w-full overflow-hidden"}
-                >
+                <div className="flex items-center gap-6 w-full overflow-hidden">
                   {typeof Icon === "string" ? (
                     <img
                       src={Icon}
                       alt={nodeType.label}
-                      className={"size-5 object-contain rounded-sm"}
+                      className="size-5 object-contain rounded"
                     />
                   ) : (
-                    <Icon className={"size-5"} />
+                    <Icon className="size-5" />
                   )}
-                  <div className={"flex flex-col items-start text-left"}>
-                    <span className={"font-medium text-sm"}>
+                  <div className="flex flex-col items-start text-left">
+                    <span className="font-medium text-sm">
                       {nodeType.label}
                     </span>
-                    <span className={"text-xs text-muted-foreground"}>
+                    <span className="text-xs text-muted-foreground">
                       {nodeType.description}
                     </span>
                   </div>
