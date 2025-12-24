@@ -1,37 +1,39 @@
-import { NodeType } from "@/generated/prisma/enums";
-import { GlobeIcon, MousePointerIcon } from "lucide-react";
+"use client";
+
+import { createId } from "@paralleldrive/cuid2";
+import { useReactFlow } from "@xyflow/react";
+import { useCallback } from "react";
+import { toast } from "sonner";
 import {
   Sheet,
-  SheetTrigger,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetDescription,
+  SheetTrigger,
 } from "@/components/ui/sheet";
+import { GlobeIcon, MousePointerIcon } from "lucide-react";
+import { NodeType } from "@/generated/prisma/enums";
 import { Separator } from "./ui/separator";
-import { ComponentType, useCallback } from "react";
-import { toast } from "sonner";
-import { useReactFlow } from "@xyflow/react";
-import { createId } from "@paralleldrive/cuid2";
 
 export type NodeTypeOption = {
   type: NodeType;
   label: string;
   description: string;
-  icon: ComponentType<{ className?: string }> | string;
+  icon: React.ComponentType<{ className?: string }> | string;
 };
 
-export const triggerNodes: NodeTypeOption[] = [
+const triggerNodes: NodeTypeOption[] = [
   {
     type: NodeType.MANUAL_TRIGGER,
     label: "Trigger manually",
     description:
-      "Runs the flow on clicking a button. Good for getting started quickly.",
+      "Runs the flow on clicking a button. Good for getting started quickly",
     icon: MousePointerIcon,
   },
 ];
 
-export const executionNodes: NodeTypeOption[] = [
+const executionNodes: NodeTypeOption[] = [
   {
     type: NodeType.HTTP_REQUEST,
     label: "HTTP Request",
@@ -40,7 +42,7 @@ export const executionNodes: NodeTypeOption[] = [
   },
 ];
 
-interface NodeSelectionProps {
+interface NodeSelectorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   children: React.ReactNode;
@@ -50,15 +52,14 @@ export function NodeSelector({
   open,
   onOpenChange,
   children,
-}: NodeSelectionProps) {
+}: NodeSelectorProps) {
   const { setNodes, getNodes, screenToFlowPosition } = useReactFlow();
 
   const handleNodeSelect = useCallback(
     (selection: NodeTypeOption) => {
-      // Check if trying to add a manual trigger when one already exists
+      // check if trying to add a manual trigger when one already exists
       if (selection.type === NodeType.MANUAL_TRIGGER) {
-        const nodes = getNodes(); // ✅ correct call
-
+        const nodes = getNodes();
         const hasManualTrigger = nodes.some(
           (node) => node.type === NodeType.MANUAL_TRIGGER
         );
@@ -70,12 +71,10 @@ export function NodeSelector({
       }
 
       setNodes((nodes) => {
-        // Check if an Initial node already exists
         const hasInitialTrigger = nodes.some(
           (node) => node.type === NodeType.INITIAL
         );
 
-        // Calculate random offset position near center of screen
         const centerX = window.innerWidth / 2;
         const centerY = window.innerHeight / 2;
 
@@ -86,22 +85,19 @@ export function NodeSelector({
 
         const newNode = {
           id: createId(),
-          type: selection.type,
-          position: flowPosition,
           data: {},
+          position: flowPosition,
+          type: selection.type,
         };
 
-        // If this is the first node (only allow one initial trigger)
-        if (hasInitialTrigger) {
-          return [newNode];
-        }
+        if (hasInitialTrigger) return [newNode];
 
         return [...nodes, newNode];
       });
 
       onOpenChange(false);
     },
-    [getNodes, setNodes, onOpenChange, screenToFlowPosition]
+    [setNodes, getNodes, screenToFlowPosition, onOpenChange]
   );
 
   return (
@@ -111,16 +107,19 @@ export function NodeSelector({
         <SheetHeader>
           <SheetTitle>What triggers this workflow?</SheetTitle>
           <SheetDescription>
-            A trigger is a step that starts your workflow.
+            A trigger is a step that starts your workflow
           </SheetDescription>
         </SheetHeader>
         <div>
           {triggerNodes.map((nodeType) => {
             const Icon = nodeType.icon;
+
             return (
               <div
                 key={nodeType.type}
-                className="w-full justify-start h-auto py-5 px-4 rounded-none cursor-pointer border border-transparent hover:border-l-primary"
+                className="w-full justify-start h-auto
+                                  py-5 px-4 rounded-none cursor-pointer border-l-2
+                                  border-transparent hover:border-l-primary"
                 onClick={() => handleNodeSelect(nodeType)}
               >
                 <div className="flex items-center gap-6 w-full overflow-hidden">
@@ -128,7 +127,7 @@ export function NodeSelector({
                     <img
                       src={Icon}
                       alt={nodeType.label}
-                      className="size-5 object-contain rounded"
+                      className="size-5 object-contain rounded-sm"
                     />
                   ) : (
                     <Icon className="size-5" />
@@ -150,10 +149,13 @@ export function NodeSelector({
         <div>
           {executionNodes.map((nodeType) => {
             const Icon = nodeType.icon;
+
             return (
               <div
                 key={nodeType.type}
-                className="w-full justify-start h-auto py-5 px-4 rounded-none cursor-pointer border border-transparent hover:border-l-primary"
+                className="w-full justify-start h-auto
+                                  py-5 px-4 rounded-none cursor-pointer border-l-2
+                                  border-transparent hover:border-l-primary"
                 onClick={() => handleNodeSelect(nodeType)}
               >
                 <div className="flex items-center gap-6 w-full overflow-hidden">
@@ -161,7 +163,7 @@ export function NodeSelector({
                     <img
                       src={Icon}
                       alt={nodeType.label}
-                      className="size-5 object-contain rounded"
+                      className="size-5 object-contain rounded-sm"
                     />
                   ) : (
                     <Icon className="size-5" />
