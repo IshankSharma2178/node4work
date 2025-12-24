@@ -7,38 +7,47 @@ import {
 } from "@/trpc/init";
 import z from "zod";
 import { PAGINATION } from "@/config/constants";
+
 import { NodeType } from "@/generated/prisma/enums";
-import type { Node, Edge } from "@xyflow/react";
+import type { Edge, Node } from "@xyflow/react";
+import { inngest } from "@/inngest/client";
 
 export const workflowsRouter = createTRPCRouter({
-  // -------------------------
-  // CREATE WORKFLOW
-  // -------------------------
-  create: premiumProcedure.mutation(async ({ ctx }) => {
-    // You must nest relational create under `data`
+  execute: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const workflow = await prisma.workflow.findUniqueOrThrow({
+        where: {
+          id: input.id,
+          userId: ctx.auth.user.id,
+        },
+      });
+
+      await inngest.send({
+        name: "workflows/execute.workflow",
+        data: { workflowId: input.id },
+      });
+
+      return workflow;
+    }),
+  create: premiumProcedure.mutation(({ ctx }) => {
     return prisma.workflow.create({
       data: {
         name: generateSlug(3),
         userId: ctx.auth.user.id,
-
-        // ✅ CORRECT Prisma relation syntax
         nodes: {
           create: {
             type: NodeType.INITIAL,
-            name: NodeType.INITIAL,
             position: { x: 0, y: 0 },
+            name: NodeType.INITIAL,
           },
         },
       },
     });
   }),
-
-  // -------------------------
-  // REMOVE WORKFLOW
-  // -------------------------
   remove: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ ctx, input }) => {
+    .mutation(({ ctx, input }) => {
       return prisma.workflow.delete({
         where: {
           id: input.id,
@@ -46,11 +55,6 @@ export const workflowsRouter = createTRPCRouter({
         },
       });
     }),
-
-  // -------------------------
-  // UPDATE WORKFLOW
-  // -------------------------
-
   update: protectedProcedure
     .input(
       z.object({
@@ -60,7 +64,7 @@ export const workflowsRouter = createTRPCRouter({
             id: z.string(),
             type: z.string().nullish(),
             position: z.object({ x: z.number(), y: z.number() }),
-            data: z.record(z.string(), z.any().optional()),
+            data: z.record(z.string(), z.any()).optional(),
           })
         ),
         edges: z.array(
@@ -75,12 +79,19 @@ export const workflowsRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const { id, nodes, edges } = input;
+
       const workflow = await prisma.workflow.findUniqueOrThrow({
         where: { id, userId: ctx.auth.user.id },
       });
 
-      return prisma.$transaction(async (tx) => {
-        await tx.node.deleteMany({ where: { workflowId: id } });
+      //Transaction to ensure all nodes and connections are deleted before creating new ones
+      return await prisma.$transaction(async (tx) => {
+        //Delete all existing nodes and connections ( cascade deletes connections)
+        await tx.node.deleteMany({
+          where: { workflowId: id },
+        });
+
+        //Create nodes
         await tx.node.createMany({
           data: nodes.map((node) => ({
             id: node.id,
@@ -91,6 +102,8 @@ export const workflowsRouter = createTRPCRouter({
             data: node.data || {},
           })),
         });
+
+        //Create connections
         await tx.connection.createMany({
           data: edges.map((edge) => ({
             workflowId: id,
@@ -100,19 +113,19 @@ export const workflowsRouter = createTRPCRouter({
             toInput: edge.targetHandle || "main",
           })),
         });
+
+        //Update workflow updateAt timestamp
         await tx.workflow.update({
           where: { id },
           data: { updatedAt: new Date() },
         });
+
         return workflow;
       });
     }),
-  // -------------------------
-  // UPDATE NAME
-  // -------------------------
   updateName: protectedProcedure
     .input(z.object({ id: z.string(), name: z.string().min(1) }))
-    .mutation(async ({ ctx, input }) => {
+    .mutation(({ ctx, input }) => {
       return prisma.workflow.update({
         where: {
           id: input.id,
@@ -123,10 +136,6 @@ export const workflowsRouter = createTRPCRouter({
         },
       });
     }),
-
-  // -------------------------
-  // GET ONE WORKFLOW
-  // -------------------------
   getOne: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
@@ -141,7 +150,7 @@ export const workflowsRouter = createTRPCRouter({
         },
       });
 
-      // Transform nodes → React Flow format
+      //Transform server nodes to react-flow compatible nodes
       const nodes: Node[] = workflow.nodes.map((node) => ({
         id: node.id,
         type: node.type,
@@ -149,7 +158,7 @@ export const workflowsRouter = createTRPCRouter({
         data: (node.data as Record<string, unknown>) || {},
       }));
 
-      // Transform connections → React Flow edges
+      //Transform server connections to react-flow compatible edges
       const edges: Edge[] = workflow.connections.map((connection) => ({
         id: connection.id,
         source: connection.fromNodeId,
@@ -164,11 +173,7 @@ export const workflowsRouter = createTRPCRouter({
         nodes,
         edges,
       };
-    }), // ✅ IMPORTANT COMMA HERE!
-
-  // -------------------------
-  // GET MANY WORKFLOWS
-  // -------------------------
+    }),
   getMany: protectedProcedure
     .input(
       z.object({
@@ -211,6 +216,8 @@ export const workflowsRouter = createTRPCRouter({
       ]);
 
       const totalPages = Math.ceil(totalCount / pageSize);
+      const hasNextPage = page < totalPages;
+      const hasPreviousPage = page > 1;
 
       return {
         items,
@@ -218,8 +225,8 @@ export const workflowsRouter = createTRPCRouter({
         pageSize,
         totalCount,
         totalPages,
-        hasNextPage: page < totalPages,
-        hasPreviousPage: page > 1,
+        hasNextPage,
+        hasPreviousPage,
       };
     }),
 });

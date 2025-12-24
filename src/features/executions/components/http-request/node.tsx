@@ -1,32 +1,28 @@
 "use client";
 
-import { memo, useState } from "react";
-import { useReactFlow, type NodeProps } from "@xyflow/react";
+import { useReactFlow, type Node, type NodeProps } from "@xyflow/react";
 import { GlobeIcon } from "lucide-react";
+import { memo, useState } from "react";
 import { BaseExecutionNode } from "../base-execution-node";
-import { FormType, HttpRequestDialog } from "./dialog";
+import { type HttpRequestFormValues, HttpRequestDialog } from "./dialog";
 
-export type HttpRequestNodeData = {
+type HttpRequestNodeData = {
   endpoint?: string;
-  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+  method?: "GET" | "POST" | "PUT" | "DELETE";
   body?: string;
-  [key: string]: unknown;
 };
 
-export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeData>) => {
+type HttpRequestNodeType = Node<HttpRequestNodeData>;
+
+export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { setNodes } = useReactFlow();
 
-  const handleOpenSettings = () => setDialogOpen(true);
-
   const nodeStatus = "initial";
 
-  const nodeData = props.data;
-  const description = nodeData?.endpoint
-    ? `${nodeData.method || "GET"}: ${nodeData.endpoint}`
-    : "Not configured";
+  const handleOpenSettings = () => setDialogOpen(true);
 
-  const handleSubmit = (values: FormType) => {
+  const handleSubmit = (values: HttpRequestFormValues) => {
     setNodes((nodes) =>
       nodes.map((node) => {
         if (node.id === props.id) {
@@ -34,9 +30,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeData>) => {
             ...node,
             data: {
               ...node.data,
-              endpoint: values.endpoint,
-              method: values.method,
-              body: values.body,
+              ...values,
             },
           };
         }
@@ -45,15 +39,18 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeData>) => {
     );
   };
 
+  const nodeData = props.data;
+  const description = nodeData?.endpoint
+    ? `${nodeData.method || "GET"}: ${nodeData.endpoint}`
+    : "Not configured";
+
   return (
     <>
       <HttpRequestDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         onSubmit={handleSubmit}
-        defaultEndpoint={nodeData.endpoint}
-        defaultMethod={nodeData.method}
-        defaultBody={nodeData.body}
+        defaultValues={nodeData}
       />
       <BaseExecutionNode
         {...props}
