@@ -56,7 +56,7 @@ export const BaseTriggerNode = memo(
         name={name}
         description={description}
         onDelete={handleDelete}
-        onSettings={onSettings}
+        onSetting={onSettings}
       >
         <NodeStatusIndicator
           status={status}
