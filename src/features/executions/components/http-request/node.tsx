@@ -8,8 +8,8 @@ import { type HttpRequestFormValues, HttpRequestDialog } from "./dialog";
 
 type HttpRequestNodeData = {
   endpoint?: string;
-  method?: "GET" | "POST" | "PUT" | "DELETE";
-  body?: string;
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+  variableName?: string;
 };
 
 type HttpRequestNodeType = Node<HttpRequestNodeData>;
