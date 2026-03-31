@@ -20,10 +20,18 @@ import {
 } from "@/features/workflows/hooks/use-workflows";
 import { useAtomValue } from "jotai";
 import { editorAtom } from "../store/atoms";
+import type { inferRouterOutputs } from "@trpc/server";
+import type { inferInput } from "@trpc/tanstack-react-query";
+import type { appRouter } from "@/trpc/routers/_app";
+import { useTRPC } from "@/trpc/client";
+
+type RouterOutputs = inferRouterOutputs<typeof appRouter>;
+type Workflow = RouterOutputs["workflows"]["getOne"];
 
 export const EditorSaveButton = ({ workflowId }: { workflowId: string }) => {
   const editor = useAtomValue(editorAtom);
   const saveWorkflow = useUpdateWorkflow();
+  const trpc = useTRPC();
 
   const handleSave = () => {
     if (!editor) return;
@@ -31,11 +39,13 @@ export const EditorSaveButton = ({ workflowId }: { workflowId: string }) => {
     const nodes = editor.getNodes();
     const edges = editor.getEdges();
 
-    saveWorkflow.mutate({
+    type UpdateWorkflowInput = inferInput<typeof trpc.workflows.update>;
+    const input: UpdateWorkflowInput = {
       id: workflowId,
       nodes,
       edges,
-    });
+    };
+    (saveWorkflow.mutate as (input: UpdateWorkflowInput) => void)(input);
   };
 
   return (
@@ -49,8 +59,10 @@ export const EditorSaveButton = ({ workflowId }: { workflowId: string }) => {
 };
 
 export const EditorNameInput = ({ workflowId }: { workflowId: string }) => {
-  const { data: workflow } = useSuspenseWorkflow(workflowId);
+  const queryResult = useSuspenseWorkflow(workflowId);
+  const workflow = queryResult.data as Workflow;
   const updateWorkflowName = useUpdateWorkflowName();
+  const trpc = useTRPC();
 
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(workflow.name);
@@ -77,10 +89,18 @@ export const EditorNameInput = ({ workflowId }: { workflowId: string }) => {
     }
 
     try {
-      await updateWorkflowName.mutateAsync({
+      type UpdateWorkflowNameInput = inferInput<
+        typeof trpc.workflows.updateName
+      >;
+      const input: UpdateWorkflowNameInput = {
         id: workflowId,
         name,
-      });
+      };
+      await (
+        updateWorkflowName.mutateAsync as (
+          input: UpdateWorkflowNameInput
+        ) => Promise<unknown>
+      )(input);
     } catch (error) {
       setName(workflow.name);
     } finally {
