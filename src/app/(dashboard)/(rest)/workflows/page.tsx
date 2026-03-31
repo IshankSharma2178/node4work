@@ -11,7 +11,6 @@ import {
   WorkflowsLoading,
 } from "@/features/workflows/components/workflows";
 import type { SearchParams } from "nuqs/server";
-import { workflowsParams } from "@/features/workflows/params";
 import { workflowsParamsLoader } from "@/features/workflows/server/params-loader";
 
 type Props = {

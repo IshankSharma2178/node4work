@@ -5,4 +5,4 @@ export const appRouter = createTRPCRouter({
   workflows: workflowsRouter,
 });
 
-export type appRouter = typeof appRouter;
+export type AppRouter = typeof appRouter;

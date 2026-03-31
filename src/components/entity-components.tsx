@@ -62,13 +62,18 @@ export const EntityHeader = ({
         )}
       </div>
       {onNew && !newButtonHref && (
-        <Button onClick={onNew} disabled={disabled || isCreating} size="sm">
+        <Button
+          variant="default"
+          onClick={onNew}
+          disabled={disabled || isCreating}
+          size="sm"
+        >
           <PlusIcon className="size-4" />
           {newButtonLabel}
         </Button>
       )}
       {newButtonHref && !onNew && (
-        <Button size="sm" asChild>
+        <Button variant="default" size="sm" asChild>
           <Link href={newButtonHref} prefetch>
             <PlusIcon className="size-4" />
             {newButtonLabel}
