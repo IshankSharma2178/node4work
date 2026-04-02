@@ -9,7 +9,8 @@
     "lint": "biome check",
     "format": "biome format --write",
     "inngest:dev": "npx inngest-cli dev",
-    "dev:all": "mprocs",
+    "ngrok:dev": "ngrok http --url=thoughtful-electrotactic-drema.ngrok-free.dev 3000",
+    "dev:all": "dotenv -- mprocs",
     "preinstall": "npx npm-force-resolutions"
   },
   "dependencies": {
@@ -96,6 +97,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/toposort": "^2.0.7",
+    "dotenv-cli": "^11.0.0",
     "inngest-cli": "^1.14.0",
     "mprocs": "^0.7.3",
     "npm-force-resolutions": "^0.0.10",
