@@ -6,6 +6,7 @@ import { NodeStatus } from "./node-status-indicator";
 
 interface BaseNodeProps extends HTMLAttributes<HTMLDivElement> {
   status?: NodeStatus;
+  onDoubleClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 export const BaseNode = forwardRef<HTMLDivElement, BaseNodeProps>(
