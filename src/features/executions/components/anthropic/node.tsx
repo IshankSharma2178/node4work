@@ -11,6 +11,7 @@ import { fetchAnthropicRealtimeToken } from "./actions";
 export type AnthropicData = {
   variableName?: string;
   systemPrompt?: string;
+  credentialId?: string;
   userPrompt?: string;
 };
 
