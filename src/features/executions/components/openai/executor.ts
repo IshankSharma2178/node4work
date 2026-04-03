@@ -5,6 +5,7 @@ import { generateText } from "ai";
 import { NonRetriableError } from "inngest";
 import { openAiChannel } from "@/inngest/channels/openai";
 import prisma from "@/lib/db";
+import { anthropicChannel } from "@/inngest/channels/anthropic";
 
 Handlebars.registerHelper("json", (context) => {
   const jsonString = JSON.stringify(context, null, 2);
@@ -22,6 +23,7 @@ type OpenAiData = {
 export const openAiExecutor: NodeExecutor<OpenAiData> = async ({
   data,
   nodeId,
+  userId,
   context,
   step,
   publish,
@@ -75,12 +77,17 @@ export const openAiExecutor: NodeExecutor<OpenAiData> = async ({
     return prisma.credential.findUnique({
       where: {
         id: data.credentialId,
+        userId,
       },
     });
   });
 
   if (!credential) {
-    throw new NonRetriableError("Gemini node: Credential not found");
+    openAiChannel().status({
+      nodeId,
+      status: "error",
+    });
+    throw new NonRetriableError("OpenAI node: Credential not found");
   }
 
   const openai = createOpenAI({
