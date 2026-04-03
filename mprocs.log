@@ -88,3 +88,7 @@ WARN [mprocs::app] Ignore input event: FocusLost
 WARN [mprocs::app] Ignore input event: FocusGained
 WARN [mprocs::app] Ignore input event: FocusLost
 WARN [mprocs::app] Ignore input event: FocusGained
+ERROR [mprocs::error] Error: failed to resize console to 95x42: HRESULT: -2147024664
+ERROR [mprocs::error] Error: failed to resize console to 95x18: HRESULT: -2147024664
+ERROR [mprocs::error] Error: channel closed
+ERROR [mprocs::error] Error: channel closed
