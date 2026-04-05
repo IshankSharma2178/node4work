@@ -7,11 +7,9 @@ import {
 import z from "zod";
 import { PAGINATION } from "@/config/constants";
 import { CredentialType } from "@/generated/prisma/enums";
+import { encrypt } from "@/lib/encryption";
 
 export const credentialsRouter = createTRPCRouter({
-  // -------------------------
-  // CREATE CREDENTIAL
-  // -------------------------
   create: premiumProcedure
     .input(
       z.object({
@@ -23,19 +21,16 @@ export const credentialsRouter = createTRPCRouter({
 
     .mutation(async ({ ctx, input }) => {
       const { name, value, type } = input;
-      // You must nest relational create under `data`
       return prisma.credential.create({
         data: {
           name,
           userId: ctx.auth.user.id,
           type,
-          value, //TODO: Consider encryption in production
+          value: encrypt(value),
         },
       });
     }),
-  // -------------------------
-  // REMOVE CREDENTIAL
-  // -------------------------
+
   remove: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
@@ -46,9 +41,6 @@ export const credentialsRouter = createTRPCRouter({
         },
       });
     }),
-  // -------------------------
-  // UPDATE CREDENTIAL
-  // -------------------------
 
   update: protectedProcedure
     .input(
@@ -70,13 +62,11 @@ export const credentialsRouter = createTRPCRouter({
         data: {
           name,
           type,
-          value, // TODO: Consider encrypting in production
+          value: encrypt(value),
         },
       });
     }),
-  // -------------------------
-  // GET ONE CREDENTIAL
-  // -------------------------
+
   getOne: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(({ ctx, input }) => {
@@ -87,9 +77,7 @@ export const credentialsRouter = createTRPCRouter({
         },
       });
     }),
-  // -------------------------
-  // GET MANY CREDENTIAL
-  // -------------------------
+
   getMany: protectedProcedure
     .input(
       z.object({
@@ -143,10 +131,6 @@ export const credentialsRouter = createTRPCRouter({
         hasPreviousPage: page > 1,
       };
     }),
-
-  // -------------------------
-  // GET CREDENTIAL BY TYPE
-  // -------------------------
 
   getByType: protectedProcedure
     .input(
