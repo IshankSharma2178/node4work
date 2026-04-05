@@ -1,9 +1,9 @@
 import Handlebars from "handlebars";
 import type { NodeExecutor } from "@/features/executions/types";
 import { decode } from "html-entities";
-import { NonRetriableError } from "inngest";
 import { discordChannel } from "@/inngest/channels/discord";
 import ky from "ky";
+import { NonRetriableError } from "inngest";
 
 Handlebars.registerHelper("json", (context) => {
   const jsonString = JSON.stringify(context, null, 2);
@@ -43,13 +43,8 @@ export const discordExecutor: NodeExecutor<DiscordData> = async ({
     throw new NonRetriableError("Discord node: Message content is missing");
   }
 
-  // Compile raw content first
   const rawContent = Handlebars.compile(data.content)(context);
-
-  // Decode the compiled content
   const content = decode(rawContent);
-
-  // Optional username handling
   const username = data.username
     ? decode(Handlebars.compile(data.username)(context))
     : undefined;
@@ -67,12 +62,18 @@ export const discordExecutor: NodeExecutor<DiscordData> = async ({
       }
 
       // Send the POST request to Discord
-      await ky.post(data.webhookUrl, {
+      const response = await ky.post(data.webhookUrl, {
         json: {
           content: content.slice(0, 2000), // Discord 2000-char max
           username,
         },
       });
+
+      if (response.status !== 204) {
+        throw new NonRetriableError(
+          `Discord webhook failed: expected 204, got ${response.status}`,
+        );
+      }
 
       if (!data.variableName) {
         await publish(
