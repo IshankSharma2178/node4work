@@ -2,6 +2,7 @@ import Handlebars from "handlebars";
 import type { NodeExecutor } from "@/features/executions/types";
 import { decode } from "html-entities";
 import { NonRetriableError } from "inngest";
+import { discordChannel } from "@/inngest/channels/discord";
 import ky from "ky";
 import { slackChannel } from "@/inngest/channels/slack";
 
@@ -59,11 +60,19 @@ export const slackExecutor: NodeExecutor<SlackData> = async ({
       }
 
       // Send the POST request to Discord
-      await ky.post(data.webhookUrl, {
+      const response = await ky.post(data.webhookUrl, {
         json: {
-          content: content, // The key depends on workflow config
+          text: content, // The key depends on workflow config
         },
       });
+
+      const responseText = await response.text();
+
+      if (response.status !== 200 || responseText !== "ok") {
+        throw new NonRetriableError(
+          `Slack webhook failed: status ${response.status}, body: ${responseText}`,
+        );
+      }
 
       if (!data.variableName) {
         await publish(
