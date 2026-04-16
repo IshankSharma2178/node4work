@@ -5,9 +5,14 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
+<<<<<<< Updated upstream
   provider      = "prisma-client"
   output        = "../src/generated/prisma"
   binaryTargets = ["native", "rhel-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
+=======
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+>>>>>>> Stashed changes
 }
 
 datasource db {
