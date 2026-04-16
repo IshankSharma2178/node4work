@@ -24,12 +24,7 @@ export const auth = betterAuth({
     },
   },
 
-  // ✅ ADD THIS BLOCK
-  trustedOrigins: [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://thoughtful-electrotactic-drema.ngrok-free.dev",
-  ],
+  trustedOrigins: [process.env.NEXT_PUBLIC_APP_URL!],
 
   plugins: [
     polar({
