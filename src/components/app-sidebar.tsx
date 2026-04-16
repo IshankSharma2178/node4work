@@ -6,11 +6,14 @@ import {
   HistoryIcon,
   KeyIcon,
   LogOutIcon,
+  MoonIcon,
   StarIcon,
+  SunIcon,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useThemeToggle } from "@/components/theme-toggle";
 import {
   Sidebar,
   SidebarContent,
@@ -22,8 +25,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { authClient } from "@/lib/auth-client";
 import { useHasActiveSubscription } from "@/features/subscriptions/hooks/use-subscription";
+import { authClient } from "@/lib/auth-client";
 
 const menuItems = [
   {
@@ -53,6 +56,11 @@ const AppSidebar = () => {
   const pathname = usePathname();
 
   const { hasActiveSubscription, isLoading } = useHasActiveSubscription();
+  const {
+    mounted: themeMounted,
+    isDark,
+    toggle: toggleTheme,
+  } = useThemeToggle();
 
   return (
     <Sidebar collapsible="icon">
@@ -97,6 +105,27 @@ const AppSidebar = () => {
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip={isDark ? "Light mode" : "Dark mode"}
+              className="gap-x-4 h-10 px-4"
+              disabled={!themeMounted}
+              onClick={() => toggleTheme()}
+            >
+              {themeMounted ? (
+                isDark ? (
+                  <SunIcon className="size-4" />
+                ) : (
+                  <MoonIcon className="size-4" />
+                )
+              ) : (
+                <SunIcon className="size-4 opacity-0" />
+              )}
+              <span>
+                {themeMounted ? (isDark ? "Light mode" : "Dark mode") : "Theme"}
+              </span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           {!hasActiveSubscription && !isLoading && (
             <SidebarMenuItem>
               <SidebarMenuButton
