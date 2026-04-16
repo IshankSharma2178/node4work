@@ -11,7 +11,8 @@
     "inngest:dev": "npx inngest-cli dev",
     "ngrok:dev": "ngrok http --url=thoughtful-electrotactic-drema.ngrok-free.dev 3000",
     "dev:all": "dotenv -- mprocs",
-    "preinstall": "npx npm-force-resolutions"
+    "preinstall": "npx npm-force-resolutions",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.44",
