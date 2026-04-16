@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { SaveIcon } from "lucide-react";
+import { InfoIcon, SaveIcon } from "lucide-react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -49,7 +49,11 @@ export const EditorSaveButton = ({ workflowId }: { workflowId: string }) => {
   };
 
   return (
-    <div className="ml-auto">
+    <div className="ml-auto gap-2 flex flex-row">
+      <div className="flex flex-row gap-1 items-center">
+        <InfoIcon className="size-4" />
+        Save workflow before executing
+      </div>
       <Button size="sm" onClick={handleSave} disabled={saveWorkflow.isPending}>
         <SaveIcon className="size-4" />
         Save
@@ -98,7 +102,7 @@ export const EditorNameInput = ({ workflowId }: { workflowId: string }) => {
       };
       await (
         updateWorkflowName.mutateAsync as (
-          input: UpdateWorkflowNameInput
+          input: UpdateWorkflowNameInput,
         ) => Promise<unknown>
       )(input);
     } catch (error) {

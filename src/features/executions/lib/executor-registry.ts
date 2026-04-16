@@ -10,7 +10,20 @@ import { openAiExecutor } from "../components/openai/executor";
 import { discordExecutor } from "../components/discord/executor";
 import { slackExecutor } from "../components/slack/executor";
 
-export const executorRegistry: Record<NodeType, NodeExecutor> = {
+type ExecutorRegistry = {
+  [NodeType.MANUAL_TRIGGER]: typeof manualTriggerExecutor;
+  [NodeType.HTTP_REQUEST]: typeof httpRequestExecutor;
+  [NodeType.INITIAL]: typeof manualTriggerExecutor;
+  [NodeType.GOOGLE_FORM_TRIGGER]: typeof googleFormTriggerExecutor;
+  [NodeType.STRIPE_TRIGGER]: typeof stripeTriggerExecutor;
+  [NodeType.GEMINI]: typeof geminiExecutor;
+  [NodeType.ANTHROPIC]: typeof anthropicExecutor;
+  [NodeType.OPENAI]: typeof openAiExecutor;
+  [NodeType.DISCORD]: typeof discordExecutor;
+  [NodeType.SLACK]: typeof slackExecutor;
+};
+
+export const executorRegistry: ExecutorRegistry = {
   [NodeType.MANUAL_TRIGGER]: manualTriggerExecutor,
   [NodeType.HTTP_REQUEST]: httpRequestExecutor,
   [NodeType.INITIAL]: manualTriggerExecutor,
@@ -23,11 +36,10 @@ export const executorRegistry: Record<NodeType, NodeExecutor> = {
   [NodeType.SLACK]: slackExecutor,
 };
 
-export const getExecutor = (type: NodeType): NodeExecutor => {
-  const executor = executorRegistry[type];
+export const getExecutor = (type: NodeType): NodeExecutor<any> => {
+  const executor = executorRegistry[type as keyof ExecutorRegistry];
   if (!executor) {
     throw new Error(`No executor found for type: ${type}`);
   }
-
-  return executor;
+  return executor as NodeExecutor<any>;
 };

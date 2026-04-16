@@ -49,9 +49,11 @@ export const useRemoveCredential = () => {
     trpc.credentials.remove.mutationOptions({
       onSuccess: (data) => {
         toast.success(`Credential "${data.name}" removed`);
-        queryClient.invalidateQueries(trpc.credentials.getMany.queryKey({}));
         queryClient.invalidateQueries(
-          trpc.credentials.getOne.queryKey({ id: data.id }),
+          trpc.credentials.getMany.queryOptions({}),
+        );
+        queryClient.invalidateQueries(
+          trpc.credentials.getOne.queryOptions({ id: data.id }),
         );
       },
       onError: () => {
@@ -85,7 +87,7 @@ export const useUpdateCredential = () => {
           trpc.credentials.getMany.queryOptions({}),
         );
         queryClient.invalidateQueries(
-          trpc.credentials.getOne.queryKey({ id: data.id }),
+          trpc.credentials.getOne.queryOptions({ id: data.id }),
         );
       },
       onError: (error) => {
