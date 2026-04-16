@@ -3,7 +3,7 @@ import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useCredentialsParams } from "./use-credentials-params";
-import type { CredentialType } from "@/generated/prisma/enums";
+import type { CredentialType } from "@prisma/client";
 
 /**
  * Hook to fetch all credentials using suspense

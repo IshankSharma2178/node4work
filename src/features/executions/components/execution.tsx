@@ -1,6 +1,6 @@
 "use client";
 
-import { ExecutionStatus } from "@/generated/prisma/enums";
+import { ExecutionStatus } from "@prisma/client";
 import {
   Card,
   CardContent,

@@ -8,7 +8,7 @@ import {
 import z from "zod";
 import { PAGINATION } from "@/config/constants";
 
-import { NodeType } from "@/generated/prisma/enums";
+import { NodeType } from "@prisma/client";
 import type { Edge, Node } from "@xyflow/react";
 import { inngest } from "@/inngest/client";
 

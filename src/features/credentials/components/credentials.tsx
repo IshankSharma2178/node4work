@@ -20,9 +20,9 @@ import { useRouter } from "next/navigation";
 import { useCredentialsParams } from "../hooks/use-credentials-params";
 import { useEntitySearch } from "@/hooks/use-entity-search";
 import { formatDistanceToNow } from "date-fns";
-import type { CredentialModel as Credential } from "@/generated/prisma/models";
+import type { Credential } from "@prisma/client";
 
-import { CredentialType } from "@/generated/prisma/enums";
+import { CredentialType } from "@prisma/client";
 
 export const CredentialsSearch = () => {
   const [params, setParams] = useCredentialsParams();
