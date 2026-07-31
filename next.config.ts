@@ -12,15 +12,6 @@ const nextConfig: NextConfig = {
     "127.0.0.1",
     "*", // Allows all ngrok domains
   ],
-  async redirects() {
-    return [
-      {
-        source: "/",
-        destination: "/workflows",
-        permanent: false,
-      },
-    ];
-  },
 };
 
 export default withSentryConfig(nextConfig, {

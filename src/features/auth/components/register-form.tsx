@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -24,12 +25,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 import { authClient } from "@/lib/auth-client";
 
 const registerSchema = z
   .object({
+    name: z.string().min(1, "Name is required"),
     email: z.email("Please enter a valid email address"),
-    password: z.string().min(1, "Password is required"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -45,6 +48,7 @@ export function RegisterForm() {
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -58,7 +62,7 @@ export function RegisterForm() {
       },
       {
         onSuccess: () => {
-          router.push("/");
+          router.push("/workflows");
         },
         onError: () => {
           toast.error("Something went wrong");
@@ -73,7 +77,7 @@ export function RegisterForm() {
       },
       {
         onSuccess: () => {
-          router.push("/");
+          router.push("/workflows");
         },
         onError: () => {
           toast.error("Something went wrong");
@@ -84,14 +88,14 @@ export function RegisterForm() {
   const onSubmit = async (values: RegisterFormValues) => {
     await authClient.signUp.email(
       {
-        name: values.email,
+        name: values.name,
         email: values.email,
         password: values.password,
-        callbackURL: "/",
+        callbackURL: "/workflows",
       },
       {
         onSuccess: () => {
-          router.push("/");
+          router.push("/workflows");
         },
         onError: (ctx) => {
           toast.error(ctx.error.message);
@@ -103,115 +107,139 @@ export function RegisterForm() {
   const isPending = form.formState.isSubmitting;
 
   return (
-    <div className="flex flex-col gap-6">
-      <Card>
-        <CardHeader className="text-center">
-          <CardTitle>Get started</CardTitle>
-          <CardDescription>Create your account to get started</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-              <div className="grid gap-6">
-                <div className="flex flex-col gap-4">
-                  <Button
-                    onClick={signInGithub}
-                    variant="outline"
-                    className="w-full"
-                    type="button"
-                    disabled={isPending}
-                  >
-                    <Image
-                      src="/logos/github.svg"
-                      alt="GitHub"
-                      width={20}
-                      height={20}
+    <Card className="border-border/50 shadow-xl shadow-primary/5 bg-card/90 backdrop-blur-xl">
+      <CardHeader className="text-center pb-2">
+        <CardTitle className="text-xl">Create your account</CardTitle>
+        <CardDescription>Get started with Nodebase in seconds</CardDescription>
+      </CardHeader>
+      <CardContent className="pt-4">
+        <div className="flex flex-col gap-3">
+          <Button
+            onClick={signInGithub}
+            variant="outline"
+            className="w-full h-10 gap-2"
+            type="button"
+            disabled={isPending}
+          >
+            <Image
+              src="/github.svg"
+              alt="GitHub"
+              width={18}
+              height={18}
+              className="dark:invert"
+            />
+            Continue with GitHub
+          </Button>
+          <Button
+            onClick={signInGoogle}
+            variant="outline"
+            className="w-full h-10 gap-2"
+            type="button"
+            disabled={isPending}
+          >
+            <Image src="/google.svg" alt="Google" width={18} height={18} />
+            Continue with Google
+          </Button>
+        </div>
+
+        <div className="relative my-6">
+          <Separator />
+          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">
+            or sign up with email
+          </span>
+        </div>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      placeholder="John Doe"
+                      autoComplete="name"
+                      {...field}
                     />
-                    Continue with GitHub
-                  </Button>
-                  <Button
-                    onClick={signInGoogle}
-                    variant="outline"
-                    className="w-full"
-                    type="button"
-                    disabled={isPending}
-                  >
-                    <Image
-                      src="/logos/google.svg"
-                      alt="Google"
-                      width={20}
-                      height={20}
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="m@example.com"
+                      autoComplete="email"
+                      {...field}
                     />
-                    Continue with Google
-                  </Button>
-                </div>
-                <div className="grid gap-6">
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="email"
-                            placeholder="m@example.com"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Password</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="password"
-                            placeholder="••••••••"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="confirmPassword"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Confirm Password</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="password"
-                            placeholder="••••••••"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button type="submit" className="w-full" disabled={isPending}>
-                    Sign up
-                  </Button>
-                </div>
-                <div className="text-center text-sm">
-                  Already have an account?{" "}
-                  <Link href="/login" className="underline underline-offset-4">
-                    Login
-                  </Link>
-                </div>
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="••••••••"
+                      autoComplete="new-password"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="••••••••"
+                      autoComplete="new-password"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type="submit" className="w-full h-10" disabled={isPending}>
+              {isPending && <Loader2 className="size-4 animate-spin" />}
+              {isPending ? "Creating account..." : "Create account"}
+            </Button>
+          </form>
+        </Form>
+
+        <p className="mt-6 text-center text-xs text-muted-foreground">
+          Already have an account?{" "}
+          <Link
+            href="/login"
+            className="font-medium text-foreground hover:text-primary transition-colors"
+          >
+            Sign in
+          </Link>
+        </p>
+      </CardContent>
+    </Card>
   );
 }
