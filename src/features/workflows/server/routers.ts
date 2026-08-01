@@ -8,7 +8,7 @@ import {
 import z from "zod";
 import { PAGINATION } from "@/config/constants";
 
-import { NodeType } from "@prisma/client";
+import { NodeType, type Prisma } from "@prisma/client";
 import type { Edge, Node } from "@xyflow/react";
 import { inngest } from "@/inngest/client";
 
@@ -76,37 +76,71 @@ export const workflowsRouter = createTRPCRouter({
 
       const workflow = await prisma.workflow.findUniqueOrThrow({
         where: { id, userId: ctx.auth.user.id },
+        include: { nodes: true },
       });
 
-      //Transaction to ensure all nodes and connections are deleted before creating new ones
+      //Merge nodes instead of delete-all + recreate so existing node data is
+      //never wiped when the client sends an incomplete snapshot.
       return await prisma.$transaction(async (tx) => {
-        //Delete all existing nodes and connections ( cascade deletes connections)
-        await tx.node.deleteMany({
+        const existingNodeIds = new Set(workflow.nodes.map((node) => node.id));
+
+        for (const node of nodes) {
+          const updateData: Prisma.NodeUpdateWithoutWorkflowInput = {
+            position: node.position,
+          };
+
+          if (node.type) {
+            updateData.type = node.type as NodeType;
+            updateData.name = node.type;
+          }
+
+          //Only overwrite data when the client actually sent data. An empty
+          //object means the config wasn't loaded and we should keep what is in
+          //the database.
+          if (node.data && Object.keys(node.data).length > 0) {
+            updateData.data = node.data;
+          }
+
+          await tx.node.upsert({
+            where: { id: node.id },
+            create: {
+              id: node.id,
+              workflowId: id,
+              name: node.type || "unknown",
+              type: (node.type || NodeType.INITIAL) as NodeType,
+              position: node.position,
+              data: node.data || {},
+            },
+            update: updateData,
+          });
+        }
+
+        //Delete nodes that no longer exist (cascade deletes their connections)
+        const removedNodeIds = [...existingNodeIds].filter(
+          (nodeId) => !nodes.some((node) => node.id === nodeId),
+        );
+        if (removedNodeIds.length > 0) {
+          await tx.node.deleteMany({
+            where: { id: { in: removedNodeIds }, workflowId: id },
+          });
+        }
+
+        //Replace connections
+        await tx.connection.deleteMany({
           where: { workflowId: id },
         });
 
-        //Create nodes
-        await tx.node.createMany({
-          data: nodes.map((node) => ({
-            id: node.id,
-            workflowId: id,
-            name: node.type || "unknown",
-            type: node.type as NodeType,
-            position: node.position,
-            data: node.data || {},
-          })),
-        });
-
-        //Create connections
-        await tx.connection.createMany({
-          data: edges.map((edge) => ({
-            workflowId: id,
-            fromNodeId: edge.source,
-            toNodeId: edge.target,
-            fromOutput: edge.sourceHandle || "main",
-            toInput: edge.targetHandle || "main",
-          })),
-        });
+        if (edges.length > 0) {
+          await tx.connection.createMany({
+            data: edges.map((edge) => ({
+              workflowId: id,
+              fromNodeId: edge.source,
+              toNodeId: edge.target,
+              fromOutput: edge.sourceHandle || "main",
+              toInput: edge.targetHandle || "main",
+            })),
+          });
+        }
 
         //Update workflow updateAt timestamp
         await tx.workflow.update({

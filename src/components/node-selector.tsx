@@ -1,7 +1,9 @@
 "use client";
 
 import { createId } from "@paralleldrive/cuid2";
+import { NodeType } from "@prisma/client";
 import { useReactFlow } from "@xyflow/react";
+import { GlobeIcon, MousePointerIcon } from "lucide-react";
 import { useCallback } from "react";
 import { toast } from "sonner";
 import {
@@ -12,8 +14,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { GlobeIcon, MousePointerIcon } from "lucide-react";
-import { NodeType } from "@prisma/client";
 import { Separator } from "./ui/separator";
 
 export type NodeTypeOption = {
@@ -42,6 +42,12 @@ const triggerNodes: NodeTypeOption[] = [
     label: "Stripe Trigger",
     description: "Runs the flow when a Stripe event is captured.",
     icon: "/stripe.svg",
+  },
+  {
+    type: NodeType.TELEGRAM_TRIGGER,
+    label: "Telegram",
+    description: "Runs the flow when a Telegram message arrives",
+    icon: "/telegram.svg",
   },
 ];
 
@@ -81,6 +87,18 @@ const executionNodes: NodeTypeOption[] = [
     label: "Slack",
     description: "Send text to Slack",
     icon: "/slack.svg",
+  },
+  {
+    type: NodeType.TELEGRAM_SEND_MESSAGE,
+    label: "Send Telegram Message",
+    description: "Send text to a Telegram chat",
+    icon: "/telegram.svg",
+  },
+  {
+    type: NodeType.TELEGRAM_SEND_BUTTONS,
+    label: "Send Telegram Message with Buttons",
+    description: "Send a Telegram message with inline buttons",
+    icon: "/telegram.svg",
   },
 ];
 

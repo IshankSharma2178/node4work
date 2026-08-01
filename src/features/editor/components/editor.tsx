@@ -23,7 +23,7 @@ import "@xyflow/react/dist/style.css";
 import { nodeComponents } from "@/config/node-components";
 import { AddNodeButton } from "./add-node-button";
 import { useSetAtom } from "jotai";
-import { editorAtom } from "../store/atoms";
+import { editorAtom, isDirtyAtom } from "../store/atoms";
 import { NodeType } from "@prisma/client";
 import { ExecuteWorkflowButton } from "./execute-workflow-button";
 export const EditorLoading = () => {
@@ -38,24 +38,40 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
   const { data: workflow } = useSuspenseWorkflow(workflowId);
 
   const setEditor = useSetAtom(editorAtom);
+  const setDirty = useSetAtom(isDirtyAtom);
 
   const [nodes, setNodes] = useState<Node[]>(workflow.nodes);
   const [edges, setEdges] = useState<Edge[]>(workflow.edges);
 
   const onNodesChange = useCallback(
-    (changes: NodeChange[]) =>
-      setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
-    [],
+    (changes: NodeChange[]) => {
+      if (
+        changes.some(
+          (change) =>
+            change.type !== "select" && change.type !== "dimensions",
+        )
+      ) {
+        setDirty(true);
+      }
+      setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot));
+    },
+    [setDirty],
   );
   const onEdgesChange = useCallback(
-    (changes: EdgeChange[]) =>
-      setEdges((edgesSnapshot) => applyEdgeChanges(changes, edgesSnapshot)),
-    [],
+    (changes: EdgeChange[]) => {
+      if (changes.some((change) => change.type !== "select")) {
+        setDirty(true);
+      }
+      setEdges((edgesSnapshot) => applyEdgeChanges(changes, edgesSnapshot));
+    },
+    [setDirty],
   );
   const onConnect = useCallback(
-    (params: Connection) =>
-      setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
-    [],
+    (params: Connection) => {
+      setDirty(true);
+      setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot));
+    },
+    [setDirty],
   );
 
   const hasManualTrigger = useMemo(() => {
