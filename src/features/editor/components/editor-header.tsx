@@ -18,8 +18,8 @@ import {
   useUpdateWorkflow,
   useUpdateWorkflowName,
 } from "@/features/workflows/hooks/use-workflows";
-import { useAtomValue } from "jotai";
-import { editorAtom } from "../store/atoms";
+import { useAtom, useAtomValue } from "jotai";
+import { editorAtom, isDirtyAtom } from "../store/atoms";
 import type { inferRouterOutputs } from "@trpc/server";
 import type { inferInput } from "@trpc/tanstack-react-query";
 import type { appRouter } from "@/trpc/routers/_app";
@@ -30,10 +30,11 @@ type Workflow = RouterOutputs["workflows"]["getOne"];
 
 export const EditorSaveButton = ({ workflowId }: { workflowId: string }) => {
   const editor = useAtomValue(editorAtom);
+  const [isDirty, setDirty] = useAtom(isDirtyAtom);
   const saveWorkflow = useUpdateWorkflow();
   const trpc = useTRPC();
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!editor) return;
 
     const nodes = editor.getNodes();
@@ -45,16 +46,38 @@ export const EditorSaveButton = ({ workflowId }: { workflowId: string }) => {
       nodes,
       edges,
     };
-    (saveWorkflow.mutate as (input: UpdateWorkflowInput) => void)(input);
+    try {
+      await (
+        saveWorkflow.mutateAsync as (
+          input: UpdateWorkflowInput,
+        ) => Promise<unknown>
+      )(input);
+      setDirty(false);
+    } catch {
+      //toast handled by the mutation
+    }
   };
 
   return (
-    <div className="ml-auto gap-2 flex flex-row">
+    <div className="ml-auto gap-2 flex flex-row items-center">
       <div className="flex flex-row gap-1 items-center">
-        <InfoIcon className="size-4" />
-        Save workflow before executing
+        {isDirty ? (
+          <span className="flex flex-row gap-1 items-center text-amber-600 text-xs">
+            <span className="size-2 rounded-full bg-amber-500" />
+            Unsaved changes
+          </span>
+        ) : (
+          <span className="flex flex-row gap-1 items-center text-muted-foreground text-xs">
+            <InfoIcon className="size-4" />
+            Saved
+          </span>
+        )}
       </div>
-      <Button size="sm" onClick={handleSave} disabled={saveWorkflow.isPending}>
+      <Button
+        size="sm"
+        onClick={handleSave}
+        disabled={!isDirty || saveWorkflow.isPending}
+      >
         <SaveIcon className="size-4" />
         Save
       </Button>

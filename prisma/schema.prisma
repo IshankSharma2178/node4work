@@ -80,6 +80,7 @@ enum CredentialType {
   ANTHROPIC
   GEMINI
   OPENAI
+  TELEGRAM
 }
 
 model Credential {
@@ -121,6 +122,9 @@ enum NodeType {
   OPENAI
   DISCORD
   SLACK
+  TELEGRAM_TRIGGER
+  TELEGRAM_SEND_MESSAGE
+  TELEGRAM_SEND_BUTTONS
 }
 
 model Node {

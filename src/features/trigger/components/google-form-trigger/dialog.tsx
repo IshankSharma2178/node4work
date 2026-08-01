@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { CopyIcon } from "lucide-react";
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
+import { buildAppUrl } from "@/lib/utils";
 import { generateGoogleFormScript } from "./utils";
 
 interface Props {
@@ -24,9 +25,7 @@ export const GoogleFormTriggerDialog = ({ open, onOpenChange }: Props) => {
   const params = useParams();
   const workflowId = params.workflowId as string;
 
-  //Construct the webhook URL
-  const baseURL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const webhookURL = `${baseURL}/api/webhooks/google-form?workflowId=${workflowId}`;
+  const webhookURL = buildAppUrl(`/api/webhooks/google-form?workflowId=${workflowId}`);
 
   const copyToClipboard = async () => {
     try {

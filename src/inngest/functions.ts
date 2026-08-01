@@ -1,18 +1,21 @@
+import { ExecutionStatus, type NodeType } from "@prisma/client";
 import { NonRetriableError } from "inngest";
-import { inngest } from "./client";
-import prisma from "@/lib/db";
-import { topologicalSort } from "./utils";
 import { getExecutor } from "@/features/executions/lib/executor-registry";
-import { ExecutionStatus, NodeType } from "@prisma/client";
-import { httpRequestChannel } from "./channels/http-request";
-import { manualTriggerChannel } from "./channels/manual-trigger";
-import { googleFormTriggerChannel } from "./channels/google-form-trigger";
-import { stripeTriggerChannel } from "./channels/stripe-trigger";
-import { geminiChannel } from "./channels/gemini";
-import { openAiChannel } from "./channels/openai";
+import prisma from "@/lib/db";
 import { anthropicChannel } from "./channels/anthropic";
 import { discordChannel } from "./channels/discord";
+import { geminiChannel } from "./channels/gemini";
+import { googleFormTriggerChannel } from "./channels/google-form-trigger";
+import { httpRequestChannel } from "./channels/http-request";
+import { manualTriggerChannel } from "./channels/manual-trigger";
+import { openAiChannel } from "./channels/openai";
 import { slackChannel } from "./channels/slack";
+import { stripeTriggerChannel } from "./channels/stripe-trigger";
+import { telegramSendButtonsChannel } from "./channels/telegram-send-buttons";
+import { telegramSendMessageChannel } from "./channels/telegram-send-message";
+import { telegramTriggerChannel } from "./channels/telegram-trigger";
+import { inngest } from "./client";
+import { topologicalSort } from "./utils";
 
 export const executeWorkflow = inngest.createFunction(
   {
@@ -43,6 +46,9 @@ export const executeWorkflow = inngest.createFunction(
       anthropicChannel(),
       discordChannel(),
       slackChannel(),
+      telegramTriggerChannel(),
+      telegramSendMessageChannel(),
+      telegramSendButtonsChannel(),
     ],
   },
   async ({ event, step, publish }) => {
