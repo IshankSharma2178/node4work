@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { sendWorkflowExecution } from "@/inngest/utils";
 import prisma from "@/lib/db";
 import { decrypt } from "@/lib/encryption";
+import { enforceRateLimit, webhookTelegramLimiter } from "@/lib/rate-limit";
 import { telegramRequest, telegramWebhookSecret } from "@/lib/telegram";
 
 type Params = { workflowId: string };
@@ -13,6 +14,14 @@ export async function POST(
   { params }: { params: Promise<Params> },
 ) {
   const { workflowId } = await params;
+
+  const rateLimited = await enforceRateLimit(
+    webhookTelegramLimiter,
+    workflowId,
+  );
+  if (rateLimited) {
+    return rateLimited;
+  }
 
   const workflow = await prisma.workflow.findUnique({
     where: { id: workflowId },
