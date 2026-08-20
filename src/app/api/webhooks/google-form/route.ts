@@ -37,13 +37,18 @@ export async function POST(request: NextRequest) {
       raw: body,
     };
 
-    // Trigger an Inngest job
-    await sendWorkflowExecution({
+    const result = await sendWorkflowExecution({
       workflowId,
+      idempotencyKey: `google-form:${body.responseId}`,
       initialData: {
         googleForm: formData,
       },
     });
+
+    if (!result) {
+      return NextResponse.json({ success: true });
+    }
+
     return NextResponse.json({ success: true, status: 200 });
   } catch (error) {
     console.log("Google Form webhook error:", error);
