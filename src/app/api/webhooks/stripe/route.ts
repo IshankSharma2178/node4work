@@ -24,7 +24,6 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const stripeData = {
-      // Event metadata
       eventId: body.id,
       eventType: body.type,
       timestamp: body.created,
@@ -32,13 +31,17 @@ export async function POST(request: NextRequest) {
       raw: body.data?.object,
     };
 
-    // Trigger an Inngest job
-    await sendWorkflowExecution({
+    const result = await sendWorkflowExecution({
       workflowId,
+      idempotencyKey: `stripe:${body.id}`,
       initialData: {
         stripe: stripeData,
       },
     });
+
+    if (!result) {
+      return NextResponse.json({ success: true });
+    }
 
     return NextResponse.json({ success: true, status: 200 });
   } catch (error) {
