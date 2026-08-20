@@ -2,6 +2,7 @@ import { Connection, Node } from "@prisma/client";
 import toposort from "toposort";
 import { inngest } from "./client";
 import { createId } from "@paralleldrive/cuid2";
+import { acquireIdempotencyKey } from "@/lib/idempotency";
 
 export const topologicalSort = (
   nodes: Node[],
@@ -49,8 +50,18 @@ export const topologicalSort = (
 
 export const sendWorkflowExecution = async (data: {
   workflowId: string;
+  idempotencyKey?: string;
   [key: string]: any;
 }) => {
+  if (data.idempotencyKey) {
+    const acquired = await acquireIdempotencyKey(
+      `idempotency:${data.idempotencyKey}`,
+    );
+    if (!acquired) {
+      return null;
+    }
+  }
+
   return inngest.send({
     name: "workflows/execute.workflow",
     data,
