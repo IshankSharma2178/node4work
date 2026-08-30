@@ -113,12 +113,17 @@ export async function POST(
         raw: message,
       };
 
-      await sendWorkflowExecution({
+      const result = await sendWorkflowExecution({
         workflowId,
+        idempotencyKey: `telegram:${body.update_id}`,
         initialData: {
           telegram: telegramData,
         },
       });
+
+      if (!result) {
+        return NextResponse.json({ success: true });
+      }
 
       return NextResponse.json({ success: true });
     }
