@@ -8,5 +8,8 @@ procs:
   worker:
     cmd: ["npm", "run", "worker"]
 
+  cron-worker:
+    cmd: ["npm", "run", "cron-worker"]
+
   next:
     cmd: ["npm", "run", "dev"]

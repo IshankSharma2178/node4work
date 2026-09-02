@@ -3,6 +3,7 @@ import { NonRetriableError } from "inngest";
 import { getExecutor } from "@/features/executions/lib/executor-registry";
 import prisma from "@/lib/db";
 import { anthropicChannel } from "./channels/anthropic";
+import { cronTriggerChannel } from "./channels/cron-trigger";
 import { discordChannel } from "./channels/discord";
 import { geminiChannel } from "./channels/gemini";
 import { googleFormTriggerChannel } from "./channels/google-form-trigger";
@@ -39,6 +40,7 @@ export const executeWorkflow = inngest.createFunction(
     channels: [
       httpRequestChannel(),
       manualTriggerChannel(),
+      cronTriggerChannel(),
       googleFormTriggerChannel(),
       stripeTriggerChannel(),
       geminiChannel(),

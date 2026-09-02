@@ -1,4 +1,5 @@
 import { NodeType } from "@prisma/client";
+import { cronTriggerExecutor } from "@/features/trigger/components/cron-trigger/executor";
 import { googleFormTriggerExecutor } from "@/features/trigger/components/google-form-trigger/executor";
 import { manualTriggerExecutor } from "@/features/trigger/components/manual-trigger/executor";
 import { stripeTriggerExecutor } from "@/features/trigger/components/stripe-trigger/executor";
@@ -15,6 +16,7 @@ import type { NodeExecutor } from "../types";
 
 type ExecutorRegistry = {
   [NodeType.MANUAL_TRIGGER]: typeof manualTriggerExecutor;
+  [NodeType.CRON_TRIGGER]: typeof cronTriggerExecutor;
   [NodeType.HTTP_REQUEST]: typeof httpRequestExecutor;
   [NodeType.INITIAL]: typeof manualTriggerExecutor;
   [NodeType.GOOGLE_FORM_TRIGGER]: typeof googleFormTriggerExecutor;
@@ -31,6 +33,7 @@ type ExecutorRegistry = {
 
 export const executorRegistry: ExecutorRegistry = {
   [NodeType.MANUAL_TRIGGER]: manualTriggerExecutor,
+  [NodeType.CRON_TRIGGER]: cronTriggerExecutor,
   [NodeType.HTTP_REQUEST]: httpRequestExecutor,
   [NodeType.INITIAL]: manualTriggerExecutor,
   [NodeType.GOOGLE_FORM_TRIGGER]: googleFormTriggerExecutor,

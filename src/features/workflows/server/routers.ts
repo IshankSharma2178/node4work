@@ -6,6 +6,7 @@ import z from "zod";
 import { PAGINATION, WORKFLOW_LIMITS } from "@/config/constants";
 import { inngest } from "@/inngest/client";
 import prisma from "@/lib/db";
+import { removeWorkflowCronSchedulers } from "@/lib/queue/cron";
 import { isActiveSubscriber } from "@/lib/subscription";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 
@@ -73,7 +74,22 @@ export const workflowsRouter = createTRPCRouter({
   }),
   remove: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .mutation(({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
+      const workflow = await prisma.workflow.findUnique({
+        where: { id: input.id, userId: ctx.auth.user.id },
+        include: { nodes: true },
+      });
+
+      if (!workflow) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
+      // Remove any registered cron scheduler jobs for this workflow.
+      const cronNodeIds = workflow.nodes
+        .filter((node) => node.type === NodeType.CRON_TRIGGER)
+        .map((node) => node.id);
+      await removeWorkflowCronSchedulers(cronNodeIds);
+
       return prisma.workflow.delete({
         where: {
           id: input.id,

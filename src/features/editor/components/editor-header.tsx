@@ -24,6 +24,7 @@ import type { inferRouterOutputs } from "@trpc/server";
 import type { inferInput } from "@trpc/tanstack-react-query";
 import type { appRouter } from "@/trpc/routers/_app";
 import { useTRPC } from "@/trpc/client";
+import { syncCronSchedules } from "@/features/trigger/components/cron-trigger/actions";
 
 type RouterOutputs = inferRouterOutputs<typeof appRouter>;
 type Workflow = RouterOutputs["workflows"]["getOne"];
@@ -53,6 +54,8 @@ export const EditorSaveButton = ({ workflowId }: { workflowId: string }) => {
         ) => Promise<unknown>
       )(input);
       setDirty(false);
+      // Reconcile cron schedule jobs in Redis to match the saved workflow.
+      await syncCronSchedules(workflowId);
     } catch {
       //toast handled by the mutation
     }

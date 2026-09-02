@@ -3,7 +3,7 @@
 import { createId } from "@paralleldrive/cuid2";
 import { NodeType } from "@prisma/client";
 import { useReactFlow } from "@xyflow/react";
-import { GlobeIcon, MousePointerIcon } from "lucide-react";
+import { ClockIcon, GlobeIcon, MousePointerIcon } from "lucide-react";
 import { useCallback } from "react";
 import { toast } from "sonner";
 import {
@@ -30,6 +30,13 @@ const triggerNodes: NodeTypeOption[] = [
     description:
       "Runs the flow on clicking a button. Good for getting started quickly",
     icon: MousePointerIcon,
+  },
+  {
+    type: NodeType.CRON_TRIGGER,
+    label: "Schedule / Cron",
+    description:
+      "Runs the flow on a schedule (preset, custom cron, or interval)",
+    icon: ClockIcon,
   },
   {
     type: NodeType.GOOGLE_FORM_TRIGGER,
@@ -126,6 +133,18 @@ export function NodeSelector({
 
         if (hasManualTrigger) {
           toast.error("Only one manual trigger is allowed per workflow");
+          return;
+        }
+      }
+
+      if (selection.type === NodeType.CRON_TRIGGER) {
+        const nodes = getNodes();
+        const hasCronTrigger = nodes.some(
+          (node) => node.type === NodeType.CRON_TRIGGER,
+        );
+
+        if (hasCronTrigger) {
+          toast.error("Only one schedule/cron trigger is allowed per workflow");
           return;
         }
       }
