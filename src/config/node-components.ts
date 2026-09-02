@@ -9,6 +9,7 @@ import { OpenAiNode } from "@/features/executions/components/openai/node";
 import { SlackNode } from "@/features/executions/components/slack/node";
 import { TelegramSendButtonsNode } from "@/features/executions/components/telegram-send-buttons/node";
 import { TelegramSendMessageNode } from "@/features/executions/components/telegram-send-message/node";
+import { CronTriggerNode } from "@/features/trigger/components/cron-trigger/node";
 import { GoogleFormTrigger } from "@/features/trigger/components/google-form-trigger/node";
 import { ManualTriggerNode } from "@/features/trigger/components/manual-trigger/node";
 import { StripeTriggerNode } from "@/features/trigger/components/stripe-trigger/node";
@@ -18,6 +19,7 @@ export const nodeComponents = {
   [NodeType.INITIAL]: InitialNode,
   [NodeType.HTTP_REQUEST]: HttpRequestNode,
   [NodeType.MANUAL_TRIGGER]: ManualTriggerNode,
+  [NodeType.CRON_TRIGGER]: CronTriggerNode,
   [NodeType.GOOGLE_FORM_TRIGGER]: GoogleFormTrigger,
   [NodeType.STRIPE_TRIGGER]: StripeTriggerNode,
   [NodeType.GEMINI]: GeminiNode,

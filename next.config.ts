@@ -5,7 +5,12 @@ const nextConfig: NextConfig = {
   devIndicators: false,
 
   experimental: {
-    serverComponentsExternalPackages: ["@prisma/client"],
+    serverComponentsExternalPackages: [
+      "@prisma/client",
+      "bullmq",
+      "ioredis",
+      "cron-parser",
+    ],
   },
   allowedDevOrigins: [
     "localhost",
