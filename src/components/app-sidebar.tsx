@@ -14,6 +14,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useThemeToggle } from "@/components/theme-toggle";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import {
   Sidebar,
   SidebarContent,
@@ -25,7 +27,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { useHasActiveSubscription } from "@/features/subscriptions/hooks/use-subscription";
+import { useWorkflowUsage } from "@/features/workflows/hooks/use-workflows";
 import { authClient } from "@/lib/auth-client";
 
 const menuItems = [
@@ -55,12 +57,18 @@ const AppSidebar = () => {
   const router = useRouter();
   const pathname = usePathname();
 
-  const { hasActiveSubscription, isLoading } = useHasActiveSubscription();
+  const { data: usage, isLoading } = useWorkflowUsage();
   const {
     mounted: themeMounted,
     isDark,
     toggle: toggleTheme,
   } = useThemeToggle();
+
+  const isPremium = usage?.isPremium ?? false;
+  const workflowCount = usage?.workflowCount ?? 0;
+  const freeLimit = usage?.freeLimit ?? 3;
+  const usedPercent = Math.round((workflowCount / freeLimit) * 100);
+  const atLimit = workflowCount >= freeLimit;
 
   return (
     <Sidebar collapsible="icon">
@@ -102,6 +110,31 @@ const AppSidebar = () => {
             </SidebarGroupContent>
           </SidebarGroup>
         ))}
+        {!isLoading && (
+          <div className="mx-4 mb-2 rounded-lg border border-border/50 bg-muted/40 px-3 py-2.5">
+            {isPremium ? (
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs text-muted-foreground">Workflows</span>
+                <Badge variant="secondary">Pro · Unlimited</Badge>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">Workflows</span>
+                  <span className="font-medium">
+                    {workflowCount} of {freeLimit}
+                  </span>
+                </div>
+                <Progress value={usedPercent} className="mt-2 h-1.5" />
+                {atLimit && (
+                  <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground">
+                    Free limit reached — upgrade for unlimited workflows.
+                  </p>
+                )}
+              </>
+            )}
+          </div>
+        )}
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
@@ -126,12 +159,16 @@ const AppSidebar = () => {
               </span>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          {!hasActiveSubscription && !isLoading && (
+          {!isPremium && !isLoading && (
             <SidebarMenuItem>
               <SidebarMenuButton
                 tooltip="Upgrade to Pro"
                 className="gap-x-4 h-10 px-4"
-                onClick={() => authClient.checkout({ slug: "Nodebase-Pro" })}
+                onClick={() =>
+                  authClient.checkout({
+                    slug: "Nodebase-Pro",
+                  })
+                }
               >
                 <StarIcon className="h-4 w-4" />
                 <span>Upgrade to Pro</span>

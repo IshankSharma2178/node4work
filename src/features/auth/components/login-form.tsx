@@ -58,6 +58,12 @@ export function LoginForm() {
           router.push("/workflows");
         },
         onError: (ctx) => {
+          if (ctx.error.status === 403) {
+            router.push(
+              `/verify-email?email=${encodeURIComponent(values.email)}`,
+            );
+            return;
+          }
           toast.error(ctx.error.message);
         },
       },

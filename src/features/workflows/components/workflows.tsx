@@ -1,5 +1,9 @@
 "use client";
 
+import type { Workflow } from "@prisma/client";
+import { formatDistanceToNow } from "date-fns";
+import { StarIcon, WorkflowIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
   EmptyView,
   EntityContainer,
@@ -11,18 +15,16 @@ import {
   ErrorView,
   LoadingView,
 } from "@/components/entity-components";
+import { Progress } from "@/components/ui/progress";
+import { useEntitySearch } from "@/hooks/use-entity-search";
+import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
 import {
   useCreateWorkflow,
   useRemoveWorkflow,
   useSuspenseWorkflows,
+  useWorkflowUsage,
 } from "../hooks/use-workflows";
-import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
-import { useRouter } from "next/navigation";
 import { useWorkflowsParams } from "../hooks/use-workflows-params";
-import { useEntitySearch } from "@/hooks/use-entity-search";
-import type { Workflow } from "@prisma/client";
-import { WorkflowIcon } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
 
 export const WorkflowsSearch = () => {
   const [params, setParams] = useWorkflowsParams();
@@ -53,6 +55,45 @@ export const WorkflowsList = () => {
   );
 };
 
+export const WorkflowsUsage = () => {
+  const { data: usage, isLoading } = useWorkflowUsage();
+
+  if (isLoading || !usage) return null;
+
+  if (usage.isPremium) {
+    return (
+      <div className="flex items-center gap-2 self-start rounded-full border border-border/50 bg-muted/40 px-3 py-1 text-xs">
+        <StarIcon className="size-3.5 text-amber-500" />
+        <span className="font-medium">Pro</span>
+        <span className="text-muted-foreground">Unlimited workflows</span>
+      </div>
+    );
+  }
+
+  const left = Math.max(0, usage.freeLimit - usage.workflowCount);
+  const atLimit = left === 0;
+
+  return (
+    <div className="w-full max-w-sm rounded-lg border border-border/50 bg-muted/40 px-3 py-2 text-xs">
+      <div className="flex items-center justify-between gap-x-2">
+        <span className="text-muted-foreground">Free plan</span>
+        <span className="font-medium">
+          {usage.workflowCount} of {usage.freeLimit} used · {left} left
+        </span>
+      </div>
+      <Progress
+        value={Math.round((usage.workflowCount / usage.freeLimit) * 100)}
+        className="mt-1.5 h-1.5"
+      />
+      {atLimit && (
+        <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground">
+          Limit reached — upgrade to Pro for unlimited workflows.
+        </p>
+      )}
+    </div>
+  );
+};
+
 export const WorkflowsHeader = ({ disabled }: { disabled?: boolean }) => {
   const router = useRouter();
   const createWorkflow = useCreateWorkflow();
@@ -72,14 +113,17 @@ export const WorkflowsHeader = ({ disabled }: { disabled?: boolean }) => {
   return (
     <>
       {modal}
-      <EntityHeader
-        title="Workflows"
-        description="Create and manage your workflows"
-        onNew={handleCreate}
-        newButtonLabel="New workflow"
-        disabled={disabled}
-        isCreating={createWorkflow.isPending}
-      />
+      <div className="flex flex-col gap-y-3">
+        <EntityHeader
+          title="Workflows"
+          description="Create and manage your workflows"
+          onNew={handleCreate}
+          newButtonLabel="New workflow"
+          disabled={disabled}
+          isCreating={createWorkflow.isPending}
+        />
+        <WorkflowsUsage />
+      </div>
     </>
   );
 };

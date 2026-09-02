@@ -95,7 +95,9 @@ export function RegisterForm() {
       },
       {
         onSuccess: () => {
-          router.push("/workflows");
+          router.push(
+            `/verify-email?email=${encodeURIComponent(values.email)}`,
+          );
         },
         onError: (ctx) => {
           toast.error(ctx.error.message);
