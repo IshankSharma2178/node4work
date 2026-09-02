@@ -1,16 +1,13 @@
-import prisma from "@/lib/db";
-import { generateSlug } from "random-word-slugs";
-import {
-  createTRPCRouter,
-  premiumProcedure,
-  protectedProcedure,
-} from "@/trpc/init";
-import z from "zod";
-import { PAGINATION } from "@/config/constants";
-
 import { NodeType, type Prisma } from "@prisma/client";
+import { TRPCError } from "@trpc/server";
 import type { Edge, Node } from "@xyflow/react";
+import { generateSlug } from "random-word-slugs";
+import z from "zod";
+import { PAGINATION, WORKFLOW_LIMITS } from "@/config/constants";
 import { inngest } from "@/inngest/client";
+import prisma from "@/lib/db";
+import { isActiveSubscriber } from "@/lib/subscription";
+import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 
 export const workflowsRouter = createTRPCRouter({
   execute: protectedProcedure
@@ -30,14 +27,49 @@ export const workflowsRouter = createTRPCRouter({
 
       return workflow;
     }),
-  create: premiumProcedure.mutation(({ ctx }) => {
-    return prisma.workflow.create({
-      data: {
-        name: generateSlug(3),
-        userId: ctx.auth.user.id,
-        nodes: {},
-      },
+  create: protectedProcedure.mutation(async ({ ctx }) => {
+    const userId = ctx.auth.user.id;
+
+    // Free users are capped at WORKFLOW_LIMITS.FREE workflows. The count check
+    // and insert run inside a transaction that locks the owning user row
+    // (SELECT ... FOR UPDATE), so concurrent creates can never sneak past the
+    // limit.
+    const isPremium = await isActiveSubscriber(userId);
+
+    return prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT 1 FROM "user" WHERE id = ${userId} FOR UPDATE`;
+
+      if (!isPremium) {
+        const workflowCount = await tx.workflow.count({ where: { userId } });
+
+        if (workflowCount >= WORKFLOW_LIMITS.FREE) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: `You've used all ${WORKFLOW_LIMITS.FREE} free workflows. Upgrade to Pro to create more.`,
+          });
+        }
+      }
+
+      return tx.workflow.create({
+        data: {
+          name: generateSlug(3),
+          userId,
+          nodes: {},
+        },
+      });
     });
+  }),
+  usage: protectedProcedure.query(async ({ ctx }) => {
+    const [workflowCount, isPremium] = await Promise.all([
+      prisma.workflow.count({ where: { userId: ctx.auth.user.id } }),
+      isActiveSubscriber(ctx.auth.user.id),
+    ]);
+
+    return {
+      workflowCount,
+      freeLimit: WORKFLOW_LIMITS.FREE,
+      isPremium,
+    };
   }),
   remove: protectedProcedure
     .input(z.object({ id: z.string() }))
