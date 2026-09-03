@@ -4,6 +4,7 @@ import { InitialNode } from "@/components/initial-node";
 import { AnthropicNode } from "@/features/executions/components/anthropic/node";
 import { DiscordNode } from "@/features/executions/components/discord/node";
 import { GeminiNode } from "@/features/executions/components/gemini/node";
+import { GoogleSheetsNode } from "@/features/executions/components/google-sheets/node";
 import { HttpRequestNode } from "@/features/executions/components/http-request/node";
 import { OpenAiNode } from "@/features/executions/components/openai/node";
 import { SlackNode } from "@/features/executions/components/slack/node";
@@ -30,6 +31,7 @@ export const nodeComponents = {
   [NodeType.TELEGRAM_TRIGGER]: TelegramTriggerNode,
   [NodeType.TELEGRAM_SEND_MESSAGE]: TelegramSendMessageNode,
   [NodeType.TELEGRAM_SEND_BUTTONS]: TelegramSendButtonsNode,
+  [NodeType.GOOGLE_SHEETS]: GoogleSheetsNode,
 } as const satisfies NodeTypes;
 
 export type RegisteredNodeType = keyof typeof nodeComponents;
