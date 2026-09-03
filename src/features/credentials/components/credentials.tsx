@@ -1,5 +1,10 @@
 "use client";
 
+import type { Credential } from "@prisma/client";
+import { CredentialType } from "@prisma/client";
+import { formatDistanceToNow } from "date-fns";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import {
   EmptyView,
   EntityContainer,
@@ -11,18 +16,12 @@ import {
   ErrorView,
   LoadingView,
 } from "@/components/entity-components";
+import { useEntitySearch } from "@/hooks/use-entity-search";
 import {
   useRemoveCredential,
   useSuspenseCredentials,
 } from "../hooks/use-credentials";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useCredentialsParams } from "../hooks/use-credentials-params";
-import { useEntitySearch } from "@/hooks/use-entity-search";
-import { formatDistanceToNow } from "date-fns";
-import type { Credential } from "@prisma/client";
-
-import { CredentialType } from "@prisma/client";
 
 export const CredentialsSearch = () => {
   const [params, setParams] = useCredentialsParams();
@@ -121,6 +120,7 @@ const credentialLogos: Record<CredentialType, string> = {
   [CredentialType.ANTHROPIC]: "/anthropic.svg",
   [CredentialType.GEMINI]: "/gemini.svg",
   [CredentialType.TELEGRAM]: "/telegram.svg",
+  [CredentialType.GOOGLE_SHEETS]: "/google-sheets.svg",
 };
 
 export const CredentialItem = ({ data }: { data: Credential }) => {

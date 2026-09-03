@@ -66,6 +66,12 @@ const executionNodes: NodeTypeOption[] = [
     icon: GlobeIcon,
   },
   {
+    type: NodeType.GOOGLE_SHEETS,
+    label: "Google Sheets",
+    description: "Read from or write to a Google Sheet",
+    icon: "/google-sheets.svg",
+  },
+  {
     type: NodeType.GEMINI,
     label: "Gemini",
     description: "Uses Google Gemini to generate text",

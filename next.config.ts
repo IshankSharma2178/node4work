@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
       "bullmq",
       "ioredis",
       "cron-parser",
+      "googleapis",
     ],
   },
   allowedDevOrigins: [

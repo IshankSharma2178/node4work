@@ -7,6 +7,7 @@ import { cronTriggerChannel } from "./channels/cron-trigger";
 import { discordChannel } from "./channels/discord";
 import { geminiChannel } from "./channels/gemini";
 import { googleFormTriggerChannel } from "./channels/google-form-trigger";
+import { googleSheetsChannel } from "./channels/google-sheets";
 import { httpRequestChannel } from "./channels/http-request";
 import { manualTriggerChannel } from "./channels/manual-trigger";
 import { openAiChannel } from "./channels/openai";
@@ -51,6 +52,7 @@ export const executeWorkflow = inngest.createFunction(
       telegramTriggerChannel(),
       telegramSendMessageChannel(),
       telegramSendButtonsChannel(),
+      googleSheetsChannel(),
     ],
   },
   async ({ event, step, publish }) => {

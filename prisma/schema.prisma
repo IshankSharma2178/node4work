@@ -81,6 +81,7 @@ enum CredentialType {
   GEMINI
   OPENAI
   TELEGRAM
+  GOOGLE_SHEETS
 }
 
 model Credential {
@@ -126,6 +127,7 @@ enum NodeType {
   TELEGRAM_TRIGGER
   TELEGRAM_SEND_MESSAGE
   TELEGRAM_SEND_BUTTONS
+  GOOGLE_SHEETS
 }
 
 model Node {

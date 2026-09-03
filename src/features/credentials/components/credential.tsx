@@ -1,5 +1,25 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CredentialType } from "@prisma/client";
+import { Info } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import z from "zod";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -23,20 +43,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Textarea } from "@/components/ui/textarea";
+import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
 import {
   useCreateCredential,
   useSuspenseCredential,
   useUpdateCredential,
 } from "../hooks/use-credentials";
-import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import z from "zod";
-import { CredentialType } from "@prisma/client";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -67,6 +80,11 @@ const credentialTypeOptions = [
     label: "Telegram",
     logo: "/telegram.svg",
   },
+  {
+    value: CredentialType.GOOGLE_SHEETS,
+    label: "Google Sheets",
+    logo: "/google-sheets.svg",
+  },
 ];
 
 interface CredentialFormProps {
@@ -95,6 +113,9 @@ export const CredentialForm = ({ initialData }: CredentialFormProps) => {
       value: "",
     },
   });
+
+  const watchType = form.watch("type");
+  const isGoogleSheets = watchType === CredentialType.GOOGLE_SHEETS;
 
   const onSubmit = async (values: FormValues) => {
     if (isEdit && initialData?.id) {
@@ -186,14 +207,170 @@ export const CredentialForm = ({ initialData }: CredentialFormProps) => {
                 name="value"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>API Key</FormLabel>
+                    <FormLabel>
+                      {isGoogleSheets ? "Service Account JSON" : "API Key"}
+                    </FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="sk-..." {...field} />
+                      {isGoogleSheets ? (
+                        <Textarea
+                          placeholder={`{\n  "type": "service_account",\n  "client_email": "...",\n  "private_key": "-----BEGIN PRIVATE KEY-----\\n..."\n}`}
+                          className="min-h-[160px] font-mono text-xs"
+                          rows={8}
+                          {...field}
+                        />
+                      ) : (
+                        <Input
+                          type="password"
+                          placeholder="sk-..."
+                          {...field}
+                        />
+                      )}
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+              {isGoogleSheets && (
+                <Alert>
+                  <Info className="size-4" />
+                  <AlertTitle>Setup Guide</AlertTitle>
+                  <AlertDescription>
+                    <Accordion
+                      type="single"
+                      collapsible
+                      className="w-full"
+                    >
+                      <AccordionItem value="step-1">
+                        <AccordionTrigger className="text-xs">
+                          1. Enable Google Sheets API
+                        </AccordionTrigger>
+                        <AccordionContent className="text-xs text-muted-foreground">
+                          <ol className="list-decimal space-y-1 pl-4">
+                            <li>
+                              Open the{" "}
+                              <a
+                                href="https://console.cloud.google.com"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="underline hover:text-foreground"
+                              >
+                                Google Cloud Console
+                              </a>
+                              .
+                            </li>
+                            <li>
+                              Select an existing project or click{" "}
+                              <strong>New Project</strong> to create one.
+                            </li>
+                            <li>
+                              In the top search bar, type{" "}
+                              <strong>Google Sheets API</strong> and select it
+                              from the results.
+                            </li>
+                            <li>
+                              Click the <strong>Enable</strong> button.
+                            </li>
+                          </ol>
+                        </AccordionContent>
+                      </AccordionItem>
+                      <AccordionItem value="step-2">
+                        <AccordionTrigger className="text-xs">
+                          2. Create a Service Account
+                        </AccordionTrigger>
+                        <AccordionContent className="text-xs text-muted-foreground">
+                          <ol className="list-decimal space-y-1 pl-4">
+                            <li>
+                              Open the navigation menu and go to{" "}
+                              <strong>IAM &amp; Admin &gt; Service Accounts</strong>.
+                            </li>
+                            <li>
+                              Click <strong>Create Service Account</strong> at
+                              the top.
+                            </li>
+                            <li>
+                              Enter a name (e.g.{" "}
+                              <code className="rounded bg-muted px-1">
+                                sheets-integration
+                              </code>
+                              ) and click <strong>Create and Continue</strong>.
+                            </li>
+                            <li>
+                              Under <strong>Select a role</strong>, choose{" "}
+                              <strong>Project &gt; Editor</strong> or{" "}
+                              <strong>Viewer</strong>.
+                            </li>
+                            <li>
+                              Click <strong>Continue</strong>, then{" "}
+                              <strong>Done</strong>.
+                            </li>
+                          </ol>
+                        </AccordionContent>
+                      </AccordionItem>
+                      <AccordionItem value="step-3">
+                        <AccordionTrigger className="text-xs">
+                          3. Download the JSON Key
+                        </AccordionTrigger>
+                        <AccordionContent className="text-xs text-muted-foreground">
+                          <ol className="list-decimal space-y-1 pl-4">
+                            <li>
+                              In the Service Accounts list, click on the service
+                              account email to open its details.
+                            </li>
+                            <li>
+                              Navigate to the <strong>Keys</strong> tab.
+                            </li>
+                            <li>
+                              Click <strong>Add Key</strong> &gt;{" "}
+                              <strong>Create new key</strong>.
+                            </li>
+                            <li>
+                              Choose <strong>JSON</strong> as the key type and
+                              click <strong>Create</strong>.
+                            </li>
+                            <li>
+                              A JSON file will be downloaded. Paste its contents
+                              into the field above.
+                            </li>
+                          </ol>
+                          <p className="mt-2 text-orange-600 dark:text-orange-400">
+                            This JSON file contains your private key. Never
+                            commit it to a public repository.
+                          </p>
+                        </AccordionContent>
+                      </AccordionItem>
+                      <AccordionItem value="step-4">
+                        <AccordionTrigger className="text-xs">
+                          4. Share Your Spreadsheet
+                        </AccordionTrigger>
+                        <AccordionContent className="text-xs text-muted-foreground">
+                          <ol className="list-decimal space-y-1 pl-4">
+                            <li>
+                              Open the Google Sheet you want to connect.
+                            </li>
+                            <li>
+                              Click <strong>Share</strong> in the top-right
+                              corner.
+                            </li>
+                            <li>
+                              Paste the <strong>service account email</strong>{" "}
+                              (from step 2, listed under the service account
+                              name).
+                            </li>
+                            <li>
+                              Set permission to <strong>Editor</strong> (or{" "}
+                              <strong>Viewer</strong> for read-only).
+                            </li>
+                            <li>
+                              Uncheck <strong>Notify people</strong> and click{" "}
+                              <strong>Share</strong>.
+                            </li>
+                          </ol>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  </AlertDescription>
+                </Alert>
+              )}
               <div className="flex gap-4">
                 <Button
                   type="submit"

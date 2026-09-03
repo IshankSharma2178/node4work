@@ -7,6 +7,7 @@ import { telegramTriggerExecutor } from "@/features/trigger/components/telegram-
 import { anthropicExecutor } from "../components/anthropic/executor";
 import { discordExecutor } from "../components/discord/executor";
 import { geminiExecutor } from "../components/gemini/executor";
+import { googleSheetsExecutor } from "../components/google-sheets/executor";
 import { httpRequestExecutor } from "../components/http-request/executor";
 import { openAiExecutor } from "../components/openai/executor";
 import { slackExecutor } from "../components/slack/executor";
@@ -29,6 +30,7 @@ type ExecutorRegistry = {
   [NodeType.TELEGRAM_TRIGGER]: typeof telegramTriggerExecutor;
   [NodeType.TELEGRAM_SEND_MESSAGE]: typeof telegramSendMessageExecutor;
   [NodeType.TELEGRAM_SEND_BUTTONS]: typeof telegramSendButtonsExecutor;
+  [NodeType.GOOGLE_SHEETS]: typeof googleSheetsExecutor;
 };
 
 export const executorRegistry: ExecutorRegistry = {
@@ -46,6 +48,7 @@ export const executorRegistry: ExecutorRegistry = {
   [NodeType.TELEGRAM_TRIGGER]: telegramTriggerExecutor,
   [NodeType.TELEGRAM_SEND_MESSAGE]: telegramSendMessageExecutor,
   [NodeType.TELEGRAM_SEND_BUTTONS]: telegramSendButtonsExecutor,
+  [NodeType.GOOGLE_SHEETS]: googleSheetsExecutor,
 };
 
 export const getExecutor = (type: NodeType): NodeExecutor<any> => {
