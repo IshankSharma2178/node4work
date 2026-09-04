@@ -1,13 +1,13 @@
 "use client";
 
-import { useReactFlow, type Node, type NodeProps } from "@xyflow/react";
+import { type Node, type NodeProps, useReactFlow } from "@xyflow/react";
 import { GlobeIcon } from "lucide-react";
 import { memo, useState } from "react";
-import { BaseExecutionNode } from "../base-execution-node";
-import { type HttpRequestFormValues, HttpRequestDialog } from "./dialog";
-import { useNodeStatus } from "../../hooks/use-node-status";
 import { HTTP_REQUEST_CHANNEL_NAME } from "@/inngest/channels/http-request";
+import { useNodeStatus } from "../../hooks/use-node-status";
+import { BaseExecutionNode } from "../base-execution-node";
 import { fetchHttpRequestRealtimeToken } from "./actions";
+import { HttpRequestDialog, type HttpRequestFormValues } from "./dialog";
 
 type HttpRequestNodeData = {
   endpoint?: string;

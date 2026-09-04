@@ -187,7 +187,6 @@ export const CronTriggerDialog = ({
   }, [defaultValues]);
 
   const form = useForm<DialogFormValues>({
-    // biome-ignore lint/suspicious/noExplicitAny: zod coerce produces unknown output that conflicts with the form value type
     resolver: zodResolver(dialogSchema) as any,
     defaultValues: { schedules: initialSchedules },
   });

@@ -1,12 +1,12 @@
 "use client";
 
+import { type Node, type NodeProps, useReactFlow } from "@xyflow/react";
 import { memo, useState } from "react";
-import { useReactFlow, type NodeProps, type Node } from "@xyflow/react";
-import { BaseExecutionNode } from "../base-execution-node";
-import { SlackDialog, SlackFormValue } from "./dialog";
-import { useNodeStatus } from "../../hooks/use-node-status";
-import { fetchSlackRealtimeToken } from "./actions";
 import { SLACK_CHANNEL_NAME } from "@/inngest/channels/slack";
+import { useNodeStatus } from "../../hooks/use-node-status";
+import { BaseExecutionNode } from "../base-execution-node";
+import { fetchSlackRealtimeToken } from "./actions";
+import { SlackDialog, type SlackFormValue } from "./dialog";
 
 export type SlackNodeData = {
   variableName?: string;

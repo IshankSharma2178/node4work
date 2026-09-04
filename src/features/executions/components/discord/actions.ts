@@ -1,8 +1,8 @@
 "use server";
 
 import { getSubscriptionToken, type Realtime } from "@inngest/realtime";
-import { inngest } from "@/inngest/client";
 import { discordChannel } from "@/inngest/channels/discord";
+import { inngest } from "@/inngest/client";
 
 export type DiscordToken = Realtime.Token<typeof discordChannel, ["status"]>;
 

@@ -1,10 +1,10 @@
-import prisma from "@/lib/db";
-import Handlebars from "handlebars";
-import type { NodeExecutor } from "@/features/executions/types";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateText } from "ai";
+import Handlebars from "handlebars";
 import { NonRetriableError } from "inngest";
+import type { NodeExecutor } from "@/features/executions/types";
 import { geminiChannel } from "@/inngest/channels/gemini";
+import prisma from "@/lib/db";
 import { decrypt } from "@/lib/encryption";
 
 Handlebars.registerHelper("json", (context) => {

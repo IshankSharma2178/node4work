@@ -1,10 +1,10 @@
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { serve } from "inngest/next";
-import { inngest } from "../../../inngest/client";
 
 import { executeWorkflow } from "@/inngest/functions";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { inngest } from "../../../inngest/client";
 
-const google = createGoogleGenerativeAI();
+const _google = createGoogleGenerativeAI();
 // Create an API that serves zero functions
 export const { GET, POST, PUT } = serve({
   client: inngest,

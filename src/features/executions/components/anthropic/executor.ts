@@ -1,11 +1,11 @@
-import Handlebars from "handlebars";
-import type { NodeExecutor } from "@/features/executions/types";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { generateText } from "ai";
+import Handlebars from "handlebars";
 import { NonRetriableError } from "inngest";
+import type { NodeExecutor } from "@/features/executions/types";
 import { anthropicChannel } from "@/inngest/channels/anthropic";
-import { decrypt } from "@/lib/encryption";
 import prisma from "@/lib/db";
+import { decrypt } from "@/lib/encryption";
 
 Handlebars.registerHelper("json", (context) => {
   const jsonString = JSON.stringify(context, null, 2);

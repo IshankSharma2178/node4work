@@ -11,14 +11,14 @@ const nextConfig: NextConfig = {
     "127.0.0.1",
     "*", // Allows all ngrok domains
   ],
-    productionBrowserSourceMaps: false,
+  productionBrowserSourceMaps: false,
 
   experimental: {
     // 2. Reduce the concurrent workers if your build machine is bottlenecked
-    cpus: 2, 
+    cpus: 2,
     workerThreads: false,
   },
-  
+
   // 3. Optional: If you use a separate tool (like GitHub Actions) for type-checking,
   // you can skip it here to bypass the heavy memory usage phase shown in your logs.
   typescript: {

@@ -1,9 +1,9 @@
 "use client";
 
-import { ReactNode } from "react";
 import { NodeToolbar, Position } from "@xyflow/react";
-import { Button } from "@/components/ui/button";
 import { SettingsIcon, TrashIcon } from "lucide-react";
+import type { ReactNode } from "react";
+import { Button } from "@/components/ui/button";
 
 interface WorkflowNodeProps {
   children: ReactNode;

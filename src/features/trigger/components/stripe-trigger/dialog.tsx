@@ -1,5 +1,8 @@
 "use client";
 
+import { CopyIcon } from "lucide-react";
+import { useParams } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,9 +13,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CopyIcon } from "lucide-react";
-import { useParams } from "next/navigation";
-import { toast } from "sonner";
 import { buildAppUrl } from "@/lib/utils";
 
 interface Props {
@@ -24,7 +24,9 @@ export const StripeTriggerDialog = ({ open, onOpenChange }: Props) => {
   const params = useParams();
   const workflowId = params.workflowId as string;
 
-  const webhookUrl = buildAppUrl(`/api/webhooks/stripe?workflowId=${workflowId}`);
+  const webhookUrl = buildAppUrl(
+    `/api/webhooks/stripe?workflowId=${workflowId}`,
+  );
 
   const copyToClipboard = async () => {
     try {

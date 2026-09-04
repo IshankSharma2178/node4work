@@ -1,9 +1,13 @@
-import { useTRPC } from "@/trpc/client";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { useCredentialsParams } from "./use-credentials-params";
 import type { CredentialType } from "@prisma/client";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
+import { toast } from "sonner";
+import { useTRPC } from "@/trpc/client";
+import { useCredentialsParams } from "./use-credentials-params";
 
 /**
  * Hook to fetch all credentials using suspense

@@ -1,3 +1,6 @@
+import type { SearchParams } from "nuqs";
+import { Suspense } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 import {
   ExecutionsContainer,
   ExecutionsError,
@@ -8,9 +11,6 @@ import { executionsParamsLoader } from "@/features/executions/server/param-loade
 import { prefetchExecutions } from "@/features/executions/server/prefetch";
 import { requireAuth } from "@/lib/auth-utils";
 import { HydrateClient } from "@/trpc/server";
-import { SearchParams } from "nuqs";
-import { Suspense } from "react";
-import { ErrorBoundary } from "react-error-boundary";
 
 type Props = {
   searchParams: Promise<SearchParams>;

@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useCallback, type ReactNode } from "react";
 import {
-  useReactFlow,
-  useNodeId,
   Handle,
-  Position,
   type NodeProps,
+  Position,
+  useNodeId,
+  useReactFlow,
 } from "@xyflow/react";
+import { type ReactNode, useCallback } from "react";
 
 import { BaseNode } from "./base-node";
 
@@ -24,8 +24,8 @@ export function PlaceholderNode({ children }: PlaceholderNodeProps) {
 
     setEdges((edges) =>
       edges.map((edge) =>
-        edge.target === id ? { ...edge, animated: false } : edge
-      )
+        edge.target === id ? { ...edge, animated: false } : edge,
+      ),
     );
 
     setNodes((nodes) => {
