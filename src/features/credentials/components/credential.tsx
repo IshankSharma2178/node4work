@@ -14,11 +14,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -235,11 +231,7 @@ export const CredentialForm = ({ initialData }: CredentialFormProps) => {
                   <Info className="size-4" />
                   <AlertTitle>Setup Guide</AlertTitle>
                   <AlertDescription>
-                    <Accordion
-                      type="single"
-                      collapsible
-                      className="w-full"
-                    >
+                    <Accordion type="single" collapsible className="w-full">
                       <AccordionItem value="step-1">
                         <AccordionTrigger className="text-xs">
                           1. Enable Google Sheets API
@@ -281,7 +273,10 @@ export const CredentialForm = ({ initialData }: CredentialFormProps) => {
                           <ol className="list-decimal space-y-1 pl-4">
                             <li>
                               Open the navigation menu and go to{" "}
-                              <strong>IAM &amp; Admin &gt; Service Accounts</strong>.
+                              <strong>
+                                IAM &amp; Admin &gt; Service Accounts
+                              </strong>
+                              .
                             </li>
                             <li>
                               Click <strong>Create Service Account</strong> at
@@ -344,9 +339,7 @@ export const CredentialForm = ({ initialData }: CredentialFormProps) => {
                         </AccordionTrigger>
                         <AccordionContent className="text-xs text-muted-foreground">
                           <ol className="list-decimal space-y-1 pl-4">
-                            <li>
-                              Open the Google Sheet you want to connect.
-                            </li>
+                            <li>Open the Google Sheet you want to connect.</li>
                             <li>
                               Click <strong>Share</strong> in the top-right
                               corner.

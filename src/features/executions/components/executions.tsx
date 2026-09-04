@@ -1,5 +1,14 @@
 "use client";
 
+import type { Execution } from "@prisma/client";
+import { ExecutionStatus } from "@prisma/client";
+import { formatDistanceToNow } from "date-fns";
+import {
+  CheckCircle2Icon,
+  ClockIcon,
+  Loader2Icon,
+  XCircleIcon,
+} from "lucide-react";
 import {
   EmptyView,
   EntityContainer,
@@ -12,15 +21,6 @@ import {
 } from "@/components/entity-components";
 import { useSuspenseExecutions } from "../hooks/use-executions";
 import { useExecutionsParams } from "../hooks/use-executions-params";
-import { formatDistanceToNow } from "date-fns";
-import type { Execution } from "@prisma/client";
-import { ExecutionStatus } from "@prisma/client";
-import {
-  CheckCircle2Icon,
-  ClockIcon,
-  Loader2Icon,
-  XCircleIcon,
-} from "lucide-react";
 
 export const ExecutionsList = () => {
   const executions = useSuspenseExecutions();

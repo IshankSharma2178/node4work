@@ -1,8 +1,8 @@
-import { Connection, Node } from "@prisma/client";
-import toposort from "toposort";
-import { inngest } from "./client";
 import { createId } from "@paralleldrive/cuid2";
+import type { Connection, Node } from "@prisma/client";
+import toposort from "toposort";
 import { acquireIdempotencyKey } from "@/lib/idempotency";
+import { inngest } from "./client";
 
 export const topologicalSort = (
   nodes: Node[],

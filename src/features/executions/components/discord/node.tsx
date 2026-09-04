@@ -1,12 +1,12 @@
 "use client";
 
+import { type Node, type NodeProps, useReactFlow } from "@xyflow/react";
 import { memo, useState } from "react";
-import { useReactFlow, type NodeProps, type Node } from "@xyflow/react";
-import { BaseExecutionNode } from "../base-execution-node";
-import { DiscordDialog, DiscordFormValue } from "./dialog";
-import { useNodeStatus } from "../../hooks/use-node-status";
-import { fetchDiscordRealtimeToken } from "./actions";
 import { DISCORD_CHANNEL_NAME } from "@/inngest/channels/discord";
+import { useNodeStatus } from "../../hooks/use-node-status";
+import { BaseExecutionNode } from "../base-execution-node";
+import { fetchDiscordRealtimeToken } from "./actions";
+import { DiscordDialog, type DiscordFormValue } from "./dialog";
 
 export type DiscordNodeData = {
   variableName?: string;

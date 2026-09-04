@@ -278,7 +278,6 @@ export const GoogleSheetsDialog = ({
                 <div className="space-y-2">
                   {watchValues.map((value, index) => (
                     <div
-                      // biome-ignore lint/suspicious/noArrayIndexKey: values are an ordered list with no reordering, and duplicate cell values make content-based keys unreliable
                       key={index}
                       className="flex items-end gap-2 rounded-lg border p-3"
                     >

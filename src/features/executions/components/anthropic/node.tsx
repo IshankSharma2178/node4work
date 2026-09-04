@@ -1,12 +1,12 @@
 "use client";
 
+import { type Node, type NodeProps, useReactFlow } from "@xyflow/react";
 import { memo, useState } from "react";
-import { useReactFlow, type Node, type NodeProps } from "@xyflow/react";
-import { BaseExecutionNode } from "../base-execution-node";
-import { useNodeStatus } from "../../hooks/use-node-status";
-import { AnthropicDialog, AnthropicFormValue } from "./dialog";
 import { ANTHROPIC_CHANNEL_NAME } from "@/inngest/channels/anthropic";
+import { useNodeStatus } from "../../hooks/use-node-status";
+import { BaseExecutionNode } from "../base-execution-node";
 import { fetchAnthropicRealtimeToken } from "./actions";
+import { AnthropicDialog, type AnthropicFormValue } from "./dialog";
 
 export type AnthropicData = {
   variableName?: string;

@@ -8,12 +8,12 @@ import { inngest } from "@/inngest/client";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { decrypt } from "@/lib/encryption";
-import { buildAppUrl } from "@/lib/utils";
 import {
   getBotUsername,
   telegramRequest,
   telegramWebhookSecret,
 } from "@/lib/telegram";
+import { buildAppUrl } from "@/lib/utils";
 
 export type TelegramTriggerToken = Realtime.Token<
   typeof telegramTriggerChannel,

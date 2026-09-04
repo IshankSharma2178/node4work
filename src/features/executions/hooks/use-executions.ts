@@ -1,7 +1,5 @@
-import { useTRPC } from "@/trpc/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { useTRPC } from "@/trpc/client";
 import { useExecutionsParams } from "./use-executions-params";
 
 /**

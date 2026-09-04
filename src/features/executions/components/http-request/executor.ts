@@ -1,7 +1,7 @@
 import Handlebars from "handlebars";
-import type { NodeExecutor } from "@/features/executions/types";
 import { NonRetriableError } from "inngest";
 import ky, { type Options as KyOptions } from "ky";
+import type { NodeExecutor } from "@/features/executions/types";
 import { httpRequestChannel } from "../../../../inngest/channels/http-request";
 
 Handlebars.registerHelper("json", (context) => {

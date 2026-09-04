@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Activity,
   ArrowRight,
@@ -31,9 +32,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { authClient } from "@/lib/auth-client";
 import { type ComponentProps, useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import {
   Accordion,
   AccordionContent,
@@ -43,6 +42,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
 const features = [
@@ -582,7 +582,9 @@ function SectionHeading({
         />
         {badge}
       </span>
-      <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">{title}</h2>
+      <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">
+        {title}
+      </h2>
       {subtitle && <p className="text-lg text-muted-foreground">{subtitle}</p>}
       <motion.div
         aria-hidden="true"
@@ -729,7 +731,10 @@ function Navbar() {
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5 group animate-slide-left">
+          <Link
+            href="/"
+            className="flex items-center gap-2.5 group animate-slide-left"
+          >
             <div className="size-8 rounded-lg bg-primary flex items-center justify-center group-hover:scale-110 transition-transform">
               <Zap className="size-4 text-primary-foreground" />
             </div>
@@ -1019,7 +1024,7 @@ export default function LandingPage() {
 
           <div className="relative w-full mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, x: -40 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
@@ -1030,27 +1035,30 @@ export default function LandingPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.1 }}
                 >
-                <Badge
-                  variant="outline"
-                  className="mb-6 px-3 py-1 text-xs font-medium tracking-wider uppercase border-primary/30 text-primary bg-primary/5 animate-in relative overflow-hidden"
-                >
-                  AI-Powered Workflow Automation
-                  <span
-                    aria-hidden="true"
-                    className="absolute inset-0 animate-badge-shine bg-gradient-to-r from-transparent via-primary/20 to-transparent"
-                  />
-                </Badge>
+                  <Badge
+                    variant="outline"
+                    className="mb-6 px-3 py-1 text-xs font-medium tracking-wider uppercase border-primary/30 text-primary bg-primary/5 animate-in relative overflow-hidden"
+                  >
+                    AI-Powered Workflow Automation
+                    <span
+                      aria-hidden="true"
+                      className="absolute inset-0 animate-badge-shine bg-gradient-to-r from-transparent via-primary/20 to-transparent"
+                    />
+                  </Badge>
                 </motion.div>
-                <motion.h1 
+                <motion.h1
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2 }}
                   className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] mb-6"
                 >
                   Build powerful{" "}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-violet-500">automations</span> visually
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-violet-500">
+                    automations
+                  </span>{" "}
+                  visually
                 </motion.h1>
-                <motion.p 
+                <motion.p
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.3 }}
@@ -1059,31 +1067,42 @@ export default function LandingPage() {
                   Connect any app, add AI agents, and automate complex workflows
                   — all through an intuitive drag-and-drop canvas.
                 </motion.p>
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.4 }}
                   className="flex flex-wrap gap-3"
                 >
-                  <Button size="lg" className="gap-2 relative overflow-hidden group" asChild>
+                  <Button
+                    size="lg"
+                    className="gap-2 relative overflow-hidden group"
+                    asChild
+                  >
                     <Link href="/signup">
                       <span className="relative z-10 flex items-center gap-2">
-                        Get Started Free <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+                        Get Started Free{" "}
+                        <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
                       </span>
                       <span className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                     </Link>
                   </Button>
-                  <Button variant="outline" size="lg" className="gap-2 group" asChild>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="gap-2 group"
+                    asChild
+                  >
                     <a
                       href="https://github.com"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <Github className="size-4 transition-transform duration-300 group-hover:scale-110" /> View on GitHub
+                      <Github className="size-4 transition-transform duration-300 group-hover:scale-110" />{" "}
+                      View on GitHub
                     </a>
                   </Button>
                 </motion.div>
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.5 }}
@@ -1103,7 +1122,7 @@ export default function LandingPage() {
                 </motion.div>
               </motion.div>
 
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, scale: 0.8, x: 40 }}
                 animate={{ opacity: 1, scale: 1, x: 0 }}
                 transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
@@ -1258,7 +1277,8 @@ export default function LandingPage() {
                       asChild
                     >
                       <Link href="#">
-                        <Play className="size-3.5 transition-transform duration-300 group-hover:scale-110" /> Run Workflow
+                        <Play className="size-3.5 transition-transform duration-300 group-hover:scale-110" />{" "}
+                        Run Workflow
                       </Link>
                     </Button>
                   </div>
@@ -1337,7 +1357,11 @@ export default function LandingPage() {
                       initial={{ scaleX: 0 }}
                       whileInView={{ scaleX: 1 }}
                       viewport={{ once: true }}
-                      transition={{ duration: 0.7, delay: 0.25, ease: "easeOut" }}
+                      transition={{
+                        duration: 0.7,
+                        delay: 0.25,
+                        ease: "easeOut",
+                      }}
                       className="mx-auto h-px w-16 origin-center bg-gradient-to-r from-transparent via-primary/60 to-transparent"
                     />
                   </div>
@@ -1447,7 +1471,10 @@ export default function LandingPage() {
         {/* ============ TESTIMONIALS ============ */}
         <section data-od-id="testimonials" className="relative py-24 lg:py-32">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <SectionHeading badge="Testimonials" title="Loved by engineering teams" />
+            <SectionHeading
+              badge="Testimonials"
+              title="Loved by engineering teams"
+            />
 
             <section
               ref={carouselRef}

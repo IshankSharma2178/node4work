@@ -7,8 +7,7 @@ import {
   SearchIcon,
   TrashIcon,
 } from "lucide-react";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
+import Link from "next/link";
 import {
   Empty,
   EmptyContent,
@@ -18,6 +17,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { cn } from "@/lib/utils";
+import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardTitle } from "./ui/card";
 import {
   DropdownMenu,
@@ -25,7 +25,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import Link from "next/link";
+import { Input } from "./ui/input";
 
 type EntityHeaderProps = {
   title: string;

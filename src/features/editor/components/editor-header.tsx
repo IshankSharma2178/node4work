@@ -1,8 +1,11 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import type { inferRouterOutputs } from "@trpc/server";
+import type { inferInput } from "@trpc/tanstack-react-query";
+import { useAtom, useAtomValue } from "jotai";
 import { InfoIcon, SaveIcon } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,21 +13,18 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { syncCronSchedules } from "@/features/trigger/components/cron-trigger/actions";
 import {
   useSuspenseWorkflow,
   useUpdateWorkflow,
   useUpdateWorkflowName,
 } from "@/features/workflows/hooks/use-workflows";
-import { useAtom, useAtomValue } from "jotai";
-import { editorAtom, isDirtyAtom } from "../store/atoms";
-import type { inferRouterOutputs } from "@trpc/server";
-import type { inferInput } from "@trpc/tanstack-react-query";
-import type { appRouter } from "@/trpc/routers/_app";
 import { useTRPC } from "@/trpc/client";
-import { syncCronSchedules } from "@/features/trigger/components/cron-trigger/actions";
+import type { appRouter } from "@/trpc/routers/_app";
+import { editorAtom, isDirtyAtom } from "../store/atoms";
 
 type RouterOutputs = inferRouterOutputs<typeof appRouter>;
 type Workflow = RouterOutputs["workflows"]["getOne"];
@@ -131,7 +131,7 @@ export const EditorNameInput = ({ workflowId }: { workflowId: string }) => {
           input: UpdateWorkflowNameInput,
         ) => Promise<unknown>
       )(input);
-    } catch (error) {
+    } catch (_error) {
       setName(workflow.name);
     } finally {
       setIsEditing(false);

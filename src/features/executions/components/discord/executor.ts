@@ -1,9 +1,9 @@
 import Handlebars from "handlebars";
-import type { NodeExecutor } from "@/features/executions/types";
 import { decode } from "html-entities";
-import { discordChannel } from "@/inngest/channels/discord";
-import ky from "ky";
 import { NonRetriableError } from "inngest";
+import ky from "ky";
+import type { NodeExecutor } from "@/features/executions/types";
+import { discordChannel } from "@/inngest/channels/discord";
 
 Handlebars.registerHelper("json", (context) => {
   const jsonString = JSON.stringify(context, null, 2);

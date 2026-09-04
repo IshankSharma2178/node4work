@@ -1,8 +1,8 @@
 "use server";
 
 import { getSubscriptionToken, type Realtime } from "@inngest/realtime";
-import { inngest } from "@/inngest/client";
 import { slackChannel } from "@/inngest/channels/slack";
+import { inngest } from "@/inngest/client";
 
 export type SlackToken = Realtime.Token<typeof slackChannel, ["status"]>;
 
