@@ -1,6 +1,13 @@
 import Cryptr from "cryptr";
 
-const cryptr = new Cryptr(process.env.ENCRYPTION_KEY!);
+let _cryptr: Cryptr | null = null;
 
-export const encrypt = (text: string) => cryptr.encrypt(text);
-export const decrypt = (text: string) => cryptr.decrypt(text);
+function getCryptr(): Cryptr {
+  if (!_cryptr) {
+    _cryptr = new Cryptr(process.env.ENCRYPTION_KEY!);
+  }
+  return _cryptr;
+}
+
+export const encrypt = (text: string) => getCryptr().encrypt(text);
+export const decrypt = (text: string) => getCryptr().decrypt(text);

@@ -33,6 +33,7 @@ Nodebase: AI workflow automation SaaS (n8n/Zapier-style). Next.js 15 (App Router
 
 ## Gotchas
 
+- **AWS EKS deployment in progress.** Full plan + progress + active bugs live in `docs/deployment/STATUS.md` — read it at the start of any session. Key spots: Docker build OOM (2.72GB), the Prisma-CLI-in-image fix (global install), and the outstanding `dotenv` runtime concern.
 - Realtime status topic shape per channel: `{ nodeId, status: "loading" | "success" | "error" }`.
 - `openai/executor.ts:7,52` imports/publishes `anthropicChannel` (copy-paste bug) — check channel imports in the AI executors before editing them.
 - `next.config.ts` sets `allowedDevOrigins: ["*"]` for ngrok.
